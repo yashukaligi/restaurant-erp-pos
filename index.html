@@ -122,14 +122,14 @@ function seed(){
 function load(){try{const s=localStorage.getItem(KEY);if(s){const o=JSON.parse(s);if(o&&o.orders&&o.menu)return o}}catch(e){}return seed()}
 let S=load();M=S.menu;
 function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
-let view='dash',cart=[],ui={q:'',cat:'All',tbl:1,disc:0,cust:'',of:'All',qt:1,open:0};
+let view='dash',cart=[],ui={q:'',cat:'All',tbl:1,disc:0,cust:'',of:'All',qt:1,open:0,ar:'7',af:'',at:'',rp:'paid',ac:'All'};
 const nid=a=>a.reduce((m,x)=>Math.max(m,x.id),0)+1;
 const items=o=>o.items.map(i=>i.q+'× '+esc(price(i.id).n)).join(', ');
 const opts=(n,sel)=>Array.from({length:n},(_,i)=>`<option ${i+1==sel?'selected':''}>${i+1}</option>`).join('');
 const tier=p=>p>=500?'Gold':p>=200?'Silver':'Bronze';
 function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(toast.h);toast.h=setTimeout(()=>t.classList.remove('on'),2200)}
 function days(){return Array.from({length:7},(_,k)=>{const d=new Date(Date.now()-(6-k)*864e5),s=d.toDateString();return{l:d.toLocaleDateString('en-IN',{weekday:'short'}),v:S.orders.filter(o=>o.paid&&o.status!='Cancelled'&&new Date(o.t).toDateString()==s).reduce((a,o)=>a+o.total,0)}})}
-function bars(l,v){const W=420,H=170,m=Math.max(...v,1),w=W/l.length;return `<svg class="ch" viewBox="0 0 ${W} ${H+30}" role="img" aria-label="Bar chart">`+v.map((y,i)=>{const h=y/m*H;return `<rect x="${i*w+8}" y="${H-h+12}" width="${w-16}" height="${h}" rx="4" fill="var(--pri)"/><text x="${i*w+w/2}" y="${H-h+8}" text-anchor="middle" font-size="9" fill="var(--mut)">${y}</text><text x="${i*w+w/2}" y="${H+26}" text-anchor="middle" font-size="11" fill="var(--mut)">${l[i]}</text>`}).join('')+'</svg>'}
+function bars(l,v){const W=420,H=170,m=Math.max(...v,1),w=W/l.length,g=Math.min(8,w/4),st=Math.ceil(l.length/8),vs=l.length<=12;return `<svg class="ch" viewBox="0 0 ${W} ${H+30}" role="img" aria-label="Bar chart">`+v.map((y,i)=>{const h=y/m*H;return `<rect x="${i*w+g}" y="${H-h+12}" width="${w-2*g}" height="${h}" rx="3" fill="var(--pri)"/>${vs&&y?`<text x="${i*w+w/2}" y="${H-h+8}" text-anchor="middle" font-size="9" fill="var(--mut)">${y}</text>`:''}${i%st==0?`<text x="${i*w+w/2}" y="${H+26}" text-anchor="middle" font-size="11" fill="var(--mut)">${l[i]}</text>`:''}`}).join('')+'</svg>'}
 function donut(d){const tot=d.reduce((a,x)=>a+x.v,0)||1,col=['#0f766e','#d97706','#1d4ed8','#b91c1c','#7c3aed','#65a30d'];let off=25;
   return `<div class="dn"><svg viewBox="0 0 42 42" width="170" height="170" role="img" aria-label="Category revenue"><circle cx="21" cy="21" r="15.9155" fill="none" stroke="var(--bd)" stroke-width="6"/>`+d.map((x,i)=>{const p=x.v/tot*100,e=`<circle cx="21" cy="21" r="15.9155" fill="none" stroke="${col[i%6]}" stroke-width="6" stroke-dasharray="${p} ${100-p}" stroke-dashoffset="${off}"/>`;off-=p;return e}).join('')+`</svg><ul>`+d.map((x,i)=>`<li><i style="background:${col[i%6]}"></i>${x.l}: ${R(x.v)}</li>`).join('')+'</ul></div>'}
 function ordTable(l,mini){return `<div class="tw"><table><tr><th>#</th><th>Table</th><th>Items</th><th>Total</th><th>Status</th>${mini?'':'<th>Payment</th><th>Actions</th>'}</tr>`+(l.map(o=>`<tr><td>${o.no}</td><td>${o.table}</td><td class="wrap">${items(o)}</td><td>${R(o.total)}</td><td>${mini?`<span class="badge b-${o.status}">${o.status}</span>`:`<select data-c="ost" data-i="${o.no}" aria-label="Order status">${ST.map(s=>`<option ${s==o.status?'selected':''}>${s}</option>`).join('')}</select>`}</td>${mini?'':`<td>${o.paid?'<span class="badge b-Ready">Paid (demo)</span>':o.status=='Cancelled'?'—':`<button class="btn sm" data-a="pay" data-i="${o.no}">Mark paid</button>`}</td><td>${!o.paid&&o.status=='Pending'?`<button class="btn sm ghost" data-a="edit" data-i="${o.no}">Edit items</button> `:''}<button class="btn sm ghost" data-a="bill" data-i="${o.no}">Bill</button> <button class="btn sm ghost" data-a="del" data-i="${o.no}">Delete</button></td>`}</tr>`).join('')||'<tr><td colspan="7">No orders found.</td></tr>')+'</table></div>'}
@@ -165,12 +165,48 @@ V.emp=()=>`<div class="card"><h3>Add employee</h3><div class="row"><label>Name<i
 V.loy=()=>{const q=ui.q.toLowerCase();
   return `<div class="card"><h3>Add customer</h3><div class="row"><label>Name<input id="cn"></label><label>Phone<input id="cp"></label><button class="btn" data-a="cusAdd">Add customer</button></div><p class="small">Earn 1 point per ₹10 when an order is marked paid. Silver from 200 points, Gold from 500.</p></div><br>
   <div class="card"><div class="bar"><input id="q" type="search" data-c="q" placeholder="Search by name or phone" value="${esc(ui.q)}"></div><div class="tw"><table><tr><th>Customer</th><th>Phone</th><th>Visits</th><th>Points</th><th>Tier</th><th></th></tr>${S.cus.filter(c=>(c.n+c.ph).toLowerCase().includes(q)).map(c=>`<tr><td>${esc(c.n)}</td><td>${esc(c.ph)}</td><td>${c.v}</td><td><b>${c.pts}</b></td><td><span class="badge b-${tier(c.pts)}">${tier(c.pts)}</span></td><td><button class="btn sm" data-a="cusBonus" data-i="${c.id}">+50</button> <button class="btn sm ghost" data-a="cusRedeem" data-i="${c.id}">Redeem 100 (₹50 off)</button> <button class="btn sm ghost" data-a="cusDel" data-i="${c.id}">Remove</button></td></tr>`).join('')||'<tr><td colspan="6">No customers found.</td></tr>'}</table></div></div>`};
-V.ana=()=>{const p=S.orders.filter(o=>o.paid&&o.status!='Cancelled'),rev=p.reduce((a,o)=>a+o.total,0),d=days(),cat={},it={};
-  p.forEach(o=>o.items.forEach(i=>{const m=price(i.id);cat[m.c]=(cat[m.c]||0)+m.p*i.q;it[m.n]=(it[m.n]||0)+i.q}));
-  const top=Object.entries(it).sort((a,b)=>b[1]-a[1]).slice(0,5);
-  return `<div class="grid k"><div class="card kpi"><span>Total paid sales</span><b>${R(rev)}</b></div><div class="card kpi"><span>Paid orders</span><b>${p.length}</b></div><div class="card kpi"><span>Average bill</span><b>${R(p.length?Math.round(rev/p.length):0)}</b></div><div class="card kpi"><span>Best day</span><b>${d.reduce((a,x)=>x.v>a.v?x:a,d[0]).l}</b></div></div>
-  <div class="grid two"><div class="card"><h3>Daily paid sales (₹)</h3>${bars(d.map(x=>x.l),d.map(x=>x.v))}</div><div class="card"><h3>Revenue by category</h3>${donut(Object.entries(cat).map(([l,v])=>({l,v})))}</div></div>
-  <div class="card"><h3>Top selling dishes</h3><div class="tw"><table><tr><th>Dish</th><th>Quantity sold</th></tr>${top.map(t=>`<tr><td>${esc(t[0])}</td><td>${t[1]}</td></tr>`).join('')}</table></div></div>`};
+/* ---- Sales Analytics: the filters in ui.ar / ui.af / ui.at / ui.rp / ui.ac decide which orders are counted ---- */
+const D1=864e5;
+const sod=t=>{const d=new Date(t);return new Date(d.getFullYear(),d.getMonth(),d.getDate()).getTime()};
+const iso=t=>{const d=new Date(t);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')};
+function anaRange(){const t=sod(Date.now());
+  if(ui.ar=='today')return[t,t+D1-1];
+  if(ui.ar=='7')return[t-6*D1,t+D1-1];
+  if(ui.ar=='30')return[t-29*D1,t+D1-1];
+  if(ui.ar=='all')return[0,Infinity];
+  return[ui.af?new Date(ui.af+'T00:00:00').getTime():0,ui.at?new Date(ui.at+'T23:59:59').getTime():Infinity]}
+function anaData(){const r=anaRange(),bad=r[0]>r[1],rows=[];
+  if(!bad)S.orders.forEach(o=>{
+    if(o.t<r[0]||o.t>r[1])return;
+    const ok=ui.rp=='paid'?(o.paid&&o.status!='Cancelled'):ui.rp=='all'?o.status!='Cancelled':o.status=='Cancelled';
+    if(!ok)return;
+    const lines=o.items.filter(i=>ui.ac=='All'||price(i.id).c==ui.ac);
+    if(!lines.length)return;
+    rows.push({o,lines,v:ui.ac=='All'?o.total:lines.reduce((a,i)=>a+price(i.id).p*i.q,0)})});
+  return{r,bad,rows}}
+function anaBuckets(lo,hi){const b=[];
+  if(sod(lo)==sod(hi)){for(let h=0;h<24;h++)b.push({s:sod(lo)+h*36e5,e:sod(lo)+(h+1)*36e5,l:h+'h',v:0})}
+  else if(hi-lo<=31*D1){for(let d=new Date(sod(lo));d.getTime()<=hi;d=new Date(d.getFullYear(),d.getMonth(),d.getDate()+1))b.push({s:d.getTime(),e:new Date(d.getFullYear(),d.getMonth(),d.getDate()+1).getTime(),l:d.toLocaleDateString('en-IN',{day:'numeric',month:'short'}),v:0})}
+  else{const f=new Date(lo);for(let d=new Date(f.getFullYear(),f.getMonth(),1);d.getTime()<=hi;d=new Date(d.getFullYear(),d.getMonth()+1,1))b.push({s:d.getTime(),e:new Date(d.getFullYear(),d.getMonth()+1,1).getTime(),l:d.toLocaleDateString('en-IN',{month:'short',year:'2-digit'}),v:0})}
+  return b}
+V.ana=()=>{
+  const {r,bad,rows}=anaData(),names={paid:'Paid sales',all:'All orders (not cancelled)',cancel:'Cancelled orders'},
+  rangeTxt={today:'today','7':'the last 7 days','30':'the last 30 days',all:'all time'},
+  rt=ui.ar=='custom'?(ui.af||'the start')+' to '+(ui.at||'today'):rangeTxt[ui.ar],
+  sel=(c,o,v)=>`<select data-c="${c}">${o.map(x=>`<option value="${x[0]}" ${x[0]==v?'selected':''}>${x[1]}</option>`).join('')}</select>`,
+  controls=`<div class="card" style="margin-bottom:14px"><div class="row" style="margin-bottom:6px"><label>Date range${sel('ar',[['today','Today'],['7','Last 7 days'],['30','Last 30 days'],['all','All time'],['custom','Custom range']],ui.ar)}</label>${ui.ar=='custom'?`<label>From<input type="date" data-c="af" value="${ui.af}"></label><label>To<input type="date" data-c="at" value="${ui.at}"></label>`:''}<label>Report${sel('rp',[['paid','Paid sales'],['all','All orders (not cancelled)'],['cancel','Cancelled orders']],ui.rp)}</label><label>Category${sel('ac',[['All','All categories'],...CATS.map(c=>[c,c])],ui.ac)}</label><button class="btn ghost" data-a="anaReset">Reset filters</button></div><p class="small" style="margin:0">Showing ${names[ui.rp]} for ${rt}${ui.ac!='All'?' in '+ui.ac:''}. The sample orders cover the last 7 days.</p></div>`,
+  empty=m=>controls+`<div class="card center"><h3>No matching data</h3><p class="mut">${m}</p><button class="btn" data-a="anaReset">Reset filters</button></div>`;
+  if(bad)return empty('The From date is after the To date. Please correct the dates.');
+  if(!rows.length)return empty('No orders match these filters. Try a wider date range, another report type or a different category.');
+  const ts=rows.map(x=>x.o.t),fixed=['today','7','30'].includes(ui.ar),
+  lo=fixed?r[0]:Math.max(r[0],Math.min(...ts)),hi=fixed?r[1]:Math.min(r[1],Math.max(...ts)),B=anaBuckets(lo,hi),cat={},it={},
+  total=rows.reduce((a,x)=>a+x.v,0),unit=ui.rp=='paid'?'Paid sales':ui.rp=='all'?'Order value':'Cancelled value';
+  rows.forEach(x=>{const b=B.find(b=>x.o.t>=b.s&&x.o.t<b.e);if(b)b.v+=x.v;
+    x.lines.forEach(i=>{const m=price(i.id);cat[m.c]=(cat[m.c]||0)+m.p*i.q;const e=it[m.n]||(it[m.n]={q:0,v:0});e.q+=i.q;e.v+=m.p*i.q})});
+  const best=B.reduce((a,x)=>x.v>a.v?x:a,B[0]),top=Object.entries(it).sort((a,b)=>b[1].q-a[1].q).slice(0,5);
+  return controls+`<div class="grid k"><div class="card kpi"><span>${unit}</span><b>${R(total)}</b></div><div class="card kpi"><span>Orders</span><b>${rows.length}</b></div><div class="card kpi"><span>Average per order</span><b>${R(Math.round(total/rows.length))}</b></div><div class="card kpi"><span>Best ${B.length==24?'hour':'period'}</span><b>${best.v?best.l:'-'}</b></div></div>
+  <div class="grid two"><div class="card"><h3>${unit} over time (₹)</h3>${bars(B.map(x=>x.l),B.map(x=>x.v))}</div><div class="card"><h3>Revenue by category</h3>${donut(Object.entries(cat).map(([l,v])=>({l,v})))}<p class="small">Category totals use item prices before GST and discount.</p></div></div>
+  <div class="grid two"><div class="card"><h3>Top selling dishes</h3><div class="tw"><table><tr><th>Dish</th><th>Quantity</th><th>Sales</th></tr>${top.map(t=>`<tr><td>${esc(t[0])}</td><td>${t[1].q}</td><td>${R(t[1].v)}</td></tr>`).join('')}</table></div></div><div class="card"><h3>Matching orders (latest 8)</h3>${ordTable(rows.map(x=>x.o).sort((a,b)=>b.t-a.t).slice(0,8),true)}</div></div>`};
 function render(){
   const a=document.activeElement,id=a&&a.id,pos=a&&a.selectionStart;
   $('#side').innerHTML='<div class="brand">🌶 Spice Route<small>Restaurant ERP + POS</small></div>'+NAV.map(n=>`<button class="nav ${n[0]==view?'on':''}" data-a="nav" data-i="${n[0]}">${n[1]} ${n[2]}</button>`).join('')+'<div class="sp"></div><button class="nav" data-a="reset">♻ Reset demo data</button>';
@@ -217,8 +253,10 @@ ${o.items.map(x=>`<div class="l"><span>${x.q} × ${esc(price(x.id).n)}</span><sp
 <div class="row noprint" style="margin:12px 0 0"><button class="btn" data-a="printBill">Print</button><button class="btn ghost" data-a="closeBill">Close</button></div></div></div>`},
 closeBill(){$('#modal').innerHTML=''},
 printBill(){window.print()},
+anaReset(){ui.ar='7';ui.af='';ui.at='';ui.rp='paid';ui.ac='All';render()},
 reset(){if(confirm('Reset all demo data in this browser?')){S=seed();M=S.menu;cart=[];save();render();toast('Demo data reset.')}}};
 const C={
+ar(v){ui.ar=v;if(v=='custom'&&!ui.af){ui.af=iso(Date.now()-6*D1);ui.at=iso(Date.now())}render()},af(v){ui.af=v;render()},at(v){ui.at=v;render()},rp(v){ui.rp=v;render()},ac(v){ui.ac=v;render()},
 q(v){ui.q=v;render()},tbl(v){ui.tbl=+v;render()},cust(v){ui.cust=v;render()},qt(v){ui.qt=+v;render()},of(v){ui.of=v;render()},
 disc(v){ui.disc=Math.min(50,Math.max(0,+v||0));render()},
 ost(v,el){fin(el.dataset.i,o=>o.status=v)},
