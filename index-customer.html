@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Spice Route – Order Online &amp; Book a Table</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+*{box-sizing:border-box}
+:root{--bg:#edf1f0;--card:#fff;--tx:#14211f;--mut:#5f6f6c;--bd:#dce5e2;--pri:#0f766e;--soft:#d5efe9;--acc:#d97706;--ok:#15803d;--warn:#b45309;--bad:#b91c1c;--info:#1d4ed8;--side:#0f2f2d;color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0b1514;--card:#142422;--tx:#e8f1ef;--mut:#9bb0ac;--bd:#25403c;--pri:#2dd4bf;--soft:#12403b;--acc:#fbbf24;--ok:#4ade80;--warn:#fbbf24;--bad:#f87171;--info:#60a5fa;--side:#071211;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0b1514;--card:#142422;--tx:#e8f1ef;--mut:#9bb0ac;--bd:#25403c;--pri:#2dd4bf;--soft:#12403b;--acc:#fbbf24;--ok:#4ade80;--warn:#fbbf24;--bad:#f87171;--info:#60a5fa;--side:#071211;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--tx);font:14px/1.5 Manrope,system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--bg);z-index:30}
+#side{position:fixed;inset:0 auto 0 0;width:240px;background:var(--side);color:#dcebe8;padding:calc(14px + env(safe-area-inset-top,0px)) 12px 14px;display:flex;flex-direction:column;gap:2px;z-index:40;overflow:auto;transition:transform .2s}
+.brand{font-weight:800;font-size:18px;padding:6px 10px 14px;color:#fff}.brand small{display:block;font-weight:400;font-size:11px;color:#8fb3ad}
+.nav{display:flex;gap:10px;align-items:center;background:none;border:0;color:inherit;font:inherit;text-align:left;padding:9px 10px;border-radius:8px;cursor:pointer;width:100%}
+.nav:hover{background:rgba(255,255,255,.07)}.nav.on{background:var(--pri);color:#fff;font-weight:600}
+.sp{flex:1}
+main{margin-left:240px;min-height:100vh}
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--bg);display:flex;align-items:center;gap:10px;padding:12px 20px;border-bottom:1px solid var(--bd)}
+.top h1{font-size:20px;margin:0;flex:1}
+#main{padding:20px;max-width:1300px}
+.menu-btn{display:none}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:16px;min-width:0}
+.card h3{margin:0 0 12px;font-size:15px}
+.grid{display:grid;gap:14px;margin-bottom:14px}.k{grid-template-columns:repeat(auto-fit,minmax(170px,1fr))}.two{grid-template-columns:1fr 1fr}.three{grid-template-columns:repeat(3,1fr)}
+.kpi b{display:block;font-size:24px;font-weight:800}.kpi span{color:var(--mut);font-size:12px}
+.kpi{border-left:4px solid var(--pri)}.kpi:nth-child(2){border-color:var(--acc)}.kpi:nth-child(3){border-color:var(--info)}.kpi:nth-child(4){border-color:var(--bad)}
+.note{background:var(--soft);border-radius:10px;padding:10px 14px;margin-bottom:14px;font-size:13px}
+.btn{background:var(--pri);color:#fff;border:0;border-radius:8px;padding:9px 14px;font:inherit;font-weight:600;cursor:pointer}
+:root[data-theme="dark"] .btn{color:#06201d}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]) .btn{color:#06201d}}
+.btn.ghost{background:transparent;color:var(--tx);border:1px solid var(--bd)}.btn.sm{padding:4px 9px;font-size:12px}.btn.red{background:var(--bad);color:#fff}
+.btn:focus-visible,input:focus-visible,select:focus-visible,.nav:focus-visible,.item:focus-visible,.chip:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+input,select{font:inherit;color:var(--tx);background:var(--card);border:1px solid var(--bd);border-radius:8px;padding:8px 10px;max-width:100%}
+label{display:flex;flex-direction:column;gap:3px;font-size:12px;color:var(--mut);font-weight:600}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;margin-bottom:12px}.row>*{flex:1 1 130px}
+.tw{overflow-x:auto}table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;color:var(--mut);font-weight:600;padding:8px;border-bottom:1px solid var(--bd);white-space:nowrap}td{padding:8px;border-bottom:1px solid var(--bd);vertical-align:middle}.wrap{min-width:180px}
+td input{width:80px}
+.badge{display:inline-block;padding:2px 9px;border-radius:99px;font-size:11px;font-weight:700;background:var(--soft);color:var(--pri);white-space:nowrap}
+.b-Pending,.b-Confirmed{background:color-mix(in srgb,var(--info) 18%,transparent);color:var(--info)}.b-Preparing,.b-Low,.b-Absent,.b-Silver{background:color-mix(in srgb,var(--warn) 20%,transparent);color:var(--warn)}
+.b-Ready,.b-OK,.b-Present,.b-Seated,.b-Gold{background:color-mix(in srgb,var(--ok) 20%,transparent);color:var(--ok)}.b-Cancelled,.b-Out{background:color-mix(in srgb,var(--bad) 20%,transparent);color:var(--bad)}.b-Served,.b-Off,.b-Bronze{background:var(--bd);color:var(--mut)}
+.bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;align-items:center}.bar input{flex:1 1 180px}
+.chip{border:1px solid var(--bd);background:var(--card);color:var(--tx);border-radius:99px;padding:6px 12px;font:inherit;cursor:pointer}.chip.on{background:var(--pri);color:#fff;border-color:var(--pri)}
+:root[data-theme="dark"] .chip.on{color:#06201d}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]) .chip.on{color:#06201d}}
+.pos{display:grid;grid-template-columns:1fr 340px;gap:14px;align-items:start}
+.menu{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px}
+.item{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:12px;cursor:pointer;text-align:left;font:inherit;color:var(--tx);display:flex;flex-direction:column;gap:2px}
+.item:hover{border-color:var(--pri)}.item span{font-size:26px}.item small{color:var(--pri);font-weight:700}
+.cart{position:sticky;top:80px}
+.ci{display:flex;align-items:center;gap:6px;padding:6px 0;border-bottom:1px dashed var(--bd)}.ci b{flex:1;font-weight:600}
+.q{width:26px;height:26px;border-radius:6px;border:1px solid var(--bd);background:var(--card);color:var(--tx);cursor:pointer}
+.tot{display:flex;justify-content:space-between;padding:3px 0}.tot.g{font-size:18px;font-weight:800;border-top:2px solid var(--tx);margin-top:6px;padding-top:8px}
+.tk{border:1px solid var(--bd);border-radius:10px;padding:10px;margin-bottom:10px;display:flex;flex-direction:column;gap:6px;align-items:flex-start}
+.mut,small{color:var(--mut)}
+.ch{width:100%;height:auto}.dn{display:flex;gap:16px;align-items:center;flex-wrap:wrap}.dn ul{list-style:none;margin:0;padding:0}.dn li{display:flex;align-items:center;gap:8px;margin:3px 0}.dn i{width:12px;height:12px;border-radius:3px;display:inline-block}
+.center{text-align:center}
+.hero{background:linear-gradient(135deg,#0f2f2d,#0f766e);color:#fff;border-radius:16px;padding:34px 24px;margin-bottom:16px}.hero h2{font-size:clamp(26px,5vw,40px);margin:0 0 8px;line-height:1.15}.hero p{max-width:540px;margin:0 0 18px;opacity:.92}.hero .btn{background:#fff;color:#0f2f2d;margin:0 8px 8px 0;padding:12px 20px;font-size:15px}.hero .btn.ghost{background:transparent;color:#fff;border:1px solid rgba(255,255,255,.7)}
+.cats{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:16px}
+.steps{display:flex;gap:4px;margin:8px 0}.steps span{flex:1;text-align:center;font-size:11px;padding:5px 2px;border-radius:6px;background:var(--bd);color:var(--mut)}.steps .on{background:#0f766e;color:#fff}
+.cbar{display:none}
+@media(max-width:1000px){.cbar{display:flex;position:fixed;left:12px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom,0px));z-index:25;justify-content:space-between;align-items:center;background:#0f766e;color:#fff;border:0;border-radius:12px;padding:13px 16px;font:inherit;font-weight:700;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,.3)}#main{padding-bottom:88px}}
+.modal{position:fixed;inset:0;z-index:50;display:flex;align-items:center;justify-content:center;padding:16px}.back{position:absolute;inset:0;background:rgba(0,0,0,.55)}
+.rcpt{position:relative;background:#fff;color:#111;width:340px;max-width:100%;max-height:90vh;overflow:auto;border-radius:10px;padding:20px;font:13px/1.5 ui-monospace,Menlo,Consolas,monospace}.rcpt h2{margin:0;text-align:center;font-size:17px}.rcpt .l{display:flex;justify-content:space-between;gap:8px}.rcpt hr{border:0;border-top:1px dashed #888;margin:8px 0}.rcpt .btn.ghost{color:#111;border-color:#888}
+@media print{body *{visibility:hidden}.rcpt,.rcpt *{visibility:visible}.rcpt{position:absolute;left:0;top:0;width:100%;max-height:none}.noprint{display:none!important}}#qr{display:inline-block;background:#fff;padding:12px;border-radius:10px;margin:12px 0}
+code{word-break:break-all;font-size:12px}
+#toast{position:fixed;bottom:calc(20px + env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%);background:var(--tx);color:var(--bg);padding:10px 18px;border-radius:99px;opacity:0;pointer-events:none;transition:opacity .2s;z-index:60}#toast.on{opacity:1}
+@media(max-width:1000px){.k{grid-template-columns:1fr 1fr}.two,.three{grid-template-columns:1fr}.pos{grid-template-columns:1fr}.cart{position:static}}
+@media(max-width:860px){#side{transform:translateX(-100%)}#side.open{transform:none}main{margin-left:0}.menu-btn{display:inline-flex}.top{padding:10px 14px}#main{padding:14px}}
+@media(max-width:480px){.k{grid-template-columns:1fr}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<aside id="side"></aside>
+<main>
+  <div class="top"><button class="btn ghost menu-btn" data-a="burger" aria-label="Open menu">☰</button><h1 id="ttl"></h1><button class="btn ghost sm" data-a="theme">Light/Dark</button></div>
+  <div id="main"></div>
+</main>
+<div id="toast"></div><div id="modal"></div>
+<script>
+/* ===== HOW THIS FILE IS ORGANISED (read me first) =====
+ 1. DATA    - the MENU list and seed() hold the sample dishes, prices, staff and orders. Edit them to change the demo data.
+ 2. STORAGE - load()/save() keep everything in localStorage (this browser only, NOT an online database).
+ 3. VIEWS   - V.home, V.pos, V.stat ... each function returns the HTML for one section.
+ 4. ACTIONS - A.* runs when a button with data-a="name" is clicked; C.* runs when an input or select with data-c="name" changes.
+ 5. render() redraws the screen after every change.
+===== */
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const R=n=>'₹'+Number(n).toLocaleString('en-IN');
+const KEY='spice_route_erp_demo_v3';
+const CATS=['Starters','Mains','Breads','Rice','Desserts','Drinks'];
+const ST=['Pending','Preparing','Ready','Served','Cancelled'];
+const MENU=[
+{id:1,n:'Paneer Tikka',c:'Starters',p:240,e:'🧀'},{id:2,n:'Chicken 65',c:'Starters',p:260,e:'🍗'},
+{id:3,n:'Veg Spring Rolls',c:'Starters',p:180,e:'🥟'},{id:4,n:'Butter Chicken',c:'Mains',p:340,e:'🍛'},
+{id:5,n:'Paneer Butter Masala',c:'Mains',p:300,e:'🥘'},{id:6,n:'Dal Tadka',c:'Mains',p:200,e:'🍲'},
+{id:7,n:'Kerala Parotta',c:'Breads',p:35,e:'🫓'},{id:8,n:'Chicken Biryani',c:'Rice',p:320,e:'🍚'},
+{id:9,n:'Veg Fried Rice',c:'Rice',p:210,e:'🍳'},{id:10,n:'Gulab Jamun',c:'Desserts',p:90,e:'🍮'},
+{id:11,n:'Filter Coffee',c:'Drinks',p:50,e:'☕'},{id:12,n:'Fresh Lime Soda',c:'Drinks',p:70,e:'🍹'}];
+const NAV=[['home','🏠','Home'],['pos','🍽','Order Food'],['stat','⏱','Order Status'],['res','📅','Book a Table'],['qr','📱','QR Menu'],['loy','⭐','Rewards']];
+let M=MENU;
+const price=id=>M.find(m=>m.id==id)||{n:'Removed item',p:0,c:'Mains'};
+function calc(items,dp){const sub=items.reduce((a,i)=>a+price(i.id).p*i.q,0),disc=Math.round(sub*dp/100),tax=Math.round((sub-disc)*.05);return{sub,disc,tax,total:sub-disc+tax}}
+function mk(items,dp,x){return Object.assign({items,dp,paid:true,status:'Served',cust:0},calc(items,dp),x)}
+function seed(){return{menu:JSON.parse(JSON.stringify(MENU)),orders:[],ono:1000,theme:'',res:[],
+  cus:[{id:1,n:'Ravi Shankar',ph:'98400 11111',pts:620,v:14},{id:2,n:'Anitha Murugan',ph:'98765 22222',pts:310,v:8},{id:3,n:'Suresh Babu',ph:'99440 33333',pts:150,v:5},{id:4,n:'Lakshmi Narayan',ph:'97900 44444',pts:480,v:11},{id:5,n:'Mohan Thiru',ph:'96000 55555',pts:60,v:2}]}}
+function load(){try{const s=localStorage.getItem(KEY);if(s){const o=JSON.parse(s);if(o&&o.orders&&o.menu)return o}}catch(e){}return seed()}
+let S=load();M=S.menu;
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+let view='home',cart=[],ui={q:'',cat:'All',tbl:1,disc:0,cust:'',cph:'',red:false,qt:1,lph:'',me:0};
+const nid=a=>a.reduce((m,x)=>Math.max(m,x.id),0)+1;
+const items=o=>o.items.map(i=>i.q+'× '+esc(price(i.id).n)).join(', ');
+const opts=(n,sel)=>Array.from({length:n},(_,i)=>`<option ${i+1==sel?'selected':''}>${i+1}</option>`).join('');
+const tier=p=>p>=500?'Gold':p>=200?'Silver':'Bronze';
+function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(toast.h);toast.h=setTimeout(()=>t.classList.remove('on'),2200)}
+const V={};
+const CI={Starters:'🥟',Mains:'🍛',Breads:'🫓',Rice:'🍚',Desserts:'🍮',Drinks:'☕'},POP=[8,4,1,5,11,10];
+const dg=s=>String(s).replace(/\D/g,'').slice(-10);
+const tl=o=>o.table?'Table '+o.table:'Takeaway';
+const iso=t=>{const d=new Date(t);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')};
+const member=p=>dg(p).length==10?S.cus.find(c=>dg(c.ph)==dg(p)):null;
+V.home=()=>`<div class="hero"><h2>South &amp; North Indian flavours, made fresh to order</h2><p>Browse the menu, order for your table or takeaway, book a table, and earn reward points on every meal.</p><button class="btn" data-a="nav" data-i="pos">Order Now</button><button class="btn ghost" data-a="nav" data-i="res">Book a Table</button></div>
+  <h3>Food categories</h3><div class="cats">${CATS.map(c=>`<button class="item" data-a="gocat" data-i="${c}"><span>${CI[c]}</span><b>${c}</b><small class="mut">${M.filter(m=>m.c==c).length} dishes</small></button>`).join('')}</div>
+  <h3>Popular dishes</h3><div class="menu">${POP.map(id=>{const m=price(id);return `<div class="item"><span>${m.e}</span><b>${esc(m.n)}</b><small>${R(m.p)}</small>${m.off?'<span class="badge b-Out">Sold out</span>':`<button class="btn sm" data-a="add" data-i="${id}">Add to order</button>`}</div>`}).join('')}</div>
+  <div class="grid three" style="margin-top:16px"><div class="card"><h3>🕚 Opening hours</h3><p class="mut">Open daily, 11:00 AM to 11:00 PM.</p></div><div class="card"><h3>🍽 Dine in or takeaway</h3><p class="mut">Choose your table number or takeaway when you order. Scan the QR code on your table to start.</p></div><div class="card"><h3>⭐ Rewards</h3><p class="mut">Earn 1 point for every ₹10 you spend. Silver at 200 points, Gold at 500.</p></div></div>
+  <div class="note"><b>Demo website:</b> your cart, orders and bookings are saved only in this browser (localStorage). The restaurant does not receive them, no online payment is taken, and order status changes are simulated.</div>`;
+V.pos=()=>{const q=ui.q.toLowerCase(),l=M.filter(m=>!m.off&&(ui.cat=='All'||m.c==ui.cat)&&m.n.toLowerCase().includes(q)),t=calc(cart,ui.disc);
+  return `<div class="pos"><div><div class="bar"><input id="q" type="search" data-c="q" placeholder="Search menu" value="${esc(ui.q)}" aria-label="Search menu">${['All',...CATS].map(c=>`<button class="chip ${ui.cat==c?'on':''}" data-a="cat" data-i="${c}">${c}</button>`).join('')}</div>
+  <div class="menu">${l.map(m=>`<button class="item" data-a="add" data-i="${m.id}"><span>${m.e}</span><b>${esc(m.n)}</b><small>${R(m.p)}</small></button>`).join('')||'<p class="mut">No dishes match. Try another search.</p>'}</div></div>
+  <div class="card cart" id="cartbox"><h3>Current bill</h3><div class="row"><label>Table<select data-c="tbl"><option value="0" ${ui.tbl==0?'selected':''}>Takeaway</option>${opts(10,ui.tbl)}</select></label><label>Rewards phone (optional)<input id="cph" type="search" inputmode="tel" data-c="cph" value="${esc(ui.cph)}" placeholder="98400 11111"><small>${(c=>c?'Welcome back, '+esc(c.n)+'! '+c.pts+' points':'')(S.cus.find(x=>x.id==ui.cust))}</small></label></div>
+  ${cart.map(i=>`<div class="ci"><b>${esc(price(i.id).n)}</b><button class="q" data-a="dec" data-i="${i.id}" aria-label="Less">−</button>${i.q}<button class="q" data-a="inc" data-i="${i.id}" aria-label="More">+</button><span>${R(price(i.id).p*i.q)}</span><button class="q" data-a="rm" data-i="${i.id}" aria-label="Remove">✕</button></div>`).join('')||'<p class="mut">Tap a dish to add it to the bill.</p>'}
+  ${(c=>c&&c.pts>=100?`<label style="flex-direction:row;align-items:center;gap:8px;margin-top:10px"><input type="checkbox" data-c="red" ${ui.red?'checked':''}> Use 100 reward points for 10% off</label>`:'')(S.cus.find(x=>x.id==ui.cust))}
+  <div class="tot"><span>Subtotal</span><span>${R(t.sub)}</span></div><div class="tot"><span>Discount</span><span>−${R(t.disc)}</span></div><div class="tot"><span>GST 5%</span><span>${R(t.tax)}</span></div><div class="tot g"><span>Total</span><span>${R(t.total)}</span></div>
+  <div class="row" style="margin:12px 0 0"><button class="btn" data-a="place">Place order & generate bill</button><button class="btn ghost" data-a="clear">Clear bill</button></div><p class="small">Demo: no online payment is taken. You would pay at the counter.</p></div></div>${cart.length?`<button class="cbar" data-a="gocart"><span>${cart.reduce((a,i)=>a+i.q,0)} items</span><span>View bill ${R(t.total)}</span></button>`:''}`};
+V.stat=()=>{const l=S.orders.filter(o=>o.mine).sort((a,b)=>b.t-a.t),stp=['Pending','Preparing','Ready','Served'];
+  return `<div class="note">Orders you place here appear below. This demo has no backend, so there is no live kitchen link: the “Demo: next stage” button simulates the kitchen moving your order along.</div>`+(l.map(o=>`<div class="card" style="margin-bottom:12px"><div class="bar" style="margin:0"><b>Order #${o.no}, ${tl(o)}</b><span class="badge b-${o.status}">${o.status}</span><span class="small">${new Date(o.t).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'})}</span></div>${o.status=='Cancelled'?'':`<div class="steps">${stp.map((s,i)=>`<span class="${i<=stp.indexOf(o.status)?'on':''}">${s}</span>`).join('')}</div>`}<p>${items(o)}</p><b>${R(o.total)}</b> ${o.paid?'<span class="badge b-Ready">Paid at counter (demo)</span>':''}<div class="row" style="margin:10px 0 0"><button class="btn sm ghost" data-a="bill" data-i="${o.no}">View bill</button>${o.status=='Pending'?`<button class="btn sm ghost" data-a="edit" data-i="${o.no}">Change items</button><button class="btn sm ghost" data-a="cancel" data-i="${o.no}">Cancel order</button>`:''}${['Pending','Preparing','Ready'].includes(o.status)?`<button class="btn sm" data-a="kadv" data-i="${o.no}">Demo: next stage</button>`:''}</div></div>`).join('')||`<div class="card center"><h3>No orders yet</h3><p class="mut">Your orders will show up here.</p><button class="btn" data-a="nav" data-i="pos">Order Now</button></div>`)};
+V.res=()=>{const td=iso(Date.now()),l=S.res.filter(r=>r.mine).sort((a,b)=>(a.d+a.t).localeCompare(b.d+b.t)),
+  times=Array.from({length:24},(_,i)=>{const m=660+i*30,t=String(Math.floor(m/60)).padStart(2,'0')+':'+(m%60?'30':'00');return `<option ${t=='19:00'?'selected':''}>${t}</option>`}).join('');
+  return `<div class="card"><h3>Book a table</h3><div class="row"><label>Your name<input id="rn"></label><label>Phone<input id="rp" type="tel"></label><label>Guests<input id="rg" type="number" min="1" max="12" value="2"></label><label>Date<input id="rd" type="date" min="${td}" value="${td}"></label><label>Time<select id="rt">${times}</select></label><label>Table<select id="rtb">${opts(10,1)}</select></label><button class="btn" data-a="resAdd">Book table</button></div><p class="small">Open daily 11:00 AM to 11:00 PM. Demo only: the booking is saved in this browser and is not sent to the restaurant, so a real site would need a backend or booking service.</p></div><br>
+  <div class="card"><h3>Your reservations</h3><div class="tw"><table><tr><th>Name</th><th>Date</th><th>Time</th><th>Guests</th><th>Table</th><th>Status</th><th></th></tr>${l.map(r=>`<tr><td>${esc(r.n)}</td><td>${r.d}</td><td>${r.t}</td><td>${r.g}</td><td>${r.tb}</td><td><span class="badge b-${r.st}">${r.st}</span></td><td>${r.st=='Confirmed'?`<button class="btn sm ghost" data-a="resCancel" data-i="${r.id}">Cancel</button>`:''}</td></tr>`).join('')||'<tr><td colspan="7">No reservations yet. Book a table above.</td></tr>'}</table></div></div>`};
+const qlink=()=>location.href.split(/[?#]/)[0]+'?table='+ui.qt;
+V.qr=()=>`<div class="grid two"><div class="card center"><h3>Table QR code</h3><label style="max-width:160px;margin:auto">Table<select data-c="qt">${opts(10,ui.qt)}</select></label><div id="qr"></div><p class="small">Guests scan this to open the menu with table ${ui.qt} pre-selected:<br><code>${esc(qlink())}</code><br>Print the codes from your live GitHub Pages address, because a code made while testing on your computer points to your computer.</p><button class="btn" data-a="qrOrder">Open menu for table ${ui.qt}</button></div>
+  <div class="card"><h3>Digital menu</h3>${CATS.map(c=>`<b>${CI[c]} ${c}</b>${M.filter(m=>m.c==c).map(m=>`<div class="ci"><span>${m.e}</span><b>${esc(m.n)}</b><span>${R(m.p)}</span>${m.off?'<span class="badge b-Out">Sold out</span>':`<button class="btn sm" data-a="add" data-i="${m.id}">Add</button>`}</div>`).join('')}<br>`).join('')}</div></div>`;
+V.loy=()=>{const c=S.cus.find(x=>x.id==ui.me),nx=c?(c.pts>=500?0:c.pts>=200?500:200):0;
+  return `<div class="grid two"><div class="card"><h3>Check your points</h3><div class="row"><label>Phone number<input id="lp" type="tel" value="${esc(ui.lph)}" placeholder="98400 11111"></label><button class="btn" data-a="lookup">Check</button></div>${c?`<h2 style="margin:6px 0">${esc(c.n)} <span class="badge b-${tier(c.pts)}">${tier(c.pts)}</span></h2><b style="font-size:28px">${c.pts}</b> points · ${c.v} visits<div style="height:8px;background:var(--bd);border-radius:99px;margin:10px 0"><div style="width:${nx?Math.min(100,c.pts/nx*100):100}%;height:100%;background:var(--pri);border-radius:99px"></div></div><p class="small">${nx?(nx-c.pts)+' more points to '+(nx==200?'Silver':'Gold'):'You are a Gold member!'} ${c.pts>=100?'You can use 100 points for 10% off when you order.':''}</p><button class="btn" data-a="useMe">Order with my points</button>`:'<p class="mut">Enter the phone number you joined with. Demo member: 98400 11111.</p>'}</div>
+  <div class="card"><h3>Join rewards</h3><div class="row"><label>Name<input id="cn"></label><label>Phone<input id="cp" type="tel"></label><button class="btn" data-a="cusAdd">Join free</button></div><p class="small">Earn 1 point per ₹10 once your order is served. Redeem 100 points for 10% off. Demo only: membership is saved in this browser, there is no login or verification, so a real rewards scheme needs a backend.</p></div></div>`};
+function render(){
+  const a=document.activeElement,id=a&&a.id,pos=a&&a.selectionStart,n=cart.reduce((s,i)=>s+i.q,0);
+  $('#side').innerHTML='<div class="brand">🌶 Spice Route<small>Order online · Dine in</small></div>'+NAV.map(x=>`<button class="nav ${x[0]==view?'on':''}" data-a="nav" data-i="${x[0]}">${x[1]} ${x[2]}${x[0]=='pos'&&n?`<span class="badge" style="margin-left:auto">${n}</span>`:''}</button>`).join('')+'<div class="sp"></div><button class="nav" data-a="reset">♻ Clear my demo data</button>';
+  $('#ttl').textContent=view=='home'?'Welcome to Spice Route':NAV.find(x=>x[0]==view)[2];
+  $('#main').innerHTML=V[view]();
+  if(id){const e=document.getElementById(id);if(e){e.focus();try{e.setSelectionRange(pos,pos)}catch(x){}}}
+  if(view=='qr'){const el=$('#qr');if(window.QRCode)new QRCode(el,{text:qlink(),width:160,height:160});else el.textContent='QR library needs an internet connection.'}
+}
+const A={
+burger(){$('#side').classList.toggle('open')},
+theme(){const d=document.documentElement,dark=d.dataset.theme?d.dataset.theme=='dark':matchMedia('(prefers-color-scheme:dark)').matches;d.dataset.theme=dark?'light':'dark';S.theme=d.dataset.theme;save()},
+nav(v){view=v;ui.q='';$('#side').classList.remove('open');render();scrollTo(0,0)},
+cat(c){ui.cat=c;render()},
+gocat(c){ui.cat=c;A.nav('pos')},
+gocart(){const e=$('#cartbox');if(e)e.scrollIntoView({behavior:'smooth'})},
+add(i){const x=cart.find(c=>c.id==i);x?x.q++:cart.push({id:+i,q:1});toast(price(i).n+' added to your order');render()},
+inc(i){cart.find(c=>c.id==i).q++;render()},
+dec(i){const x=cart.find(c=>c.id==i);if(--x.q<1)cart=cart.filter(c=>c!==x);render()},
+rm(i){cart=cart.filter(c=>c.id!=i);render()},
+clear(){cart=[];ui.red=false;ui.disc=0;render()},
+place(){if(!cart.length)return toast('Add at least one dish first.');
+  const c=S.cus.find(x=>x.id==ui.cust),rd=!!(ui.red&&c&&c.pts>=100);if(rd)c.pts-=100;
+  const o=mk(cart.map(i=>({...i})),rd?10:0,{no:++S.ono,table:+ui.tbl,t:Date.now(),status:'Pending',paid:false,cust:c?c.id:0,mine:true,red:rd});
+  S.orders.push(o);cart=[];ui.red=false;ui.disc=0;save();toast('Order #'+o.no+' placed. Track it under Order Status.');render();A.bill(o.no)},
+edit(i){const o=S.orders.find(x=>x.no==i);if(!o||o.status!='Pending')return;const c=S.cus.find(x=>x.id==o.cust);if(o.red&&c)c.pts+=100;
+  cart=o.items.map(x=>({...x}));ui.tbl=o.table;ui.red=!!o.red;ui.disc=o.red?10:0;ui.cust=o.cust||'';ui.cph=c?c.ph:'';S.orders=S.orders.filter(x=>x!==o);save();view='pos';toast('Your items are back in the cart. Place the order again when ready.');render()},
+cancel(i){const o=S.orders.find(x=>x.no==i);if(!o||o.status!='Pending')return;const c=S.cus.find(x=>x.id==o.cust);if(o.red&&c)c.pts+=100;o.status='Cancelled';save();toast('Order #'+i+' cancelled.');render()},
+kadv(i){const o=S.orders.find(x=>x.no==i),nx={Pending:'Preparing',Preparing:'Ready',Ready:'Served'};if(!o||!nx[o.status])return;o.status=nx[o.status];
+  if(o.status=='Served'){o.paid=true;const c=S.cus.find(x=>x.id==o.cust);if(c){const p=Math.floor(o.total/10);c.pts+=p;c.v++;toast('Order served. You earned '+p+' reward points.')}}save();render()},
+bill(i){const o=S.orders.find(x=>x.no==i);if(!o)return;const c=S.cus.find(x=>x.id==o.cust);
+$('#modal').innerHTML=`<div class="modal"><div class="back" data-a="closeBill"></div><div class="rcpt"><h2>Spice Route</h2><div style="text-align:center">Bill #${o.no}</div><hr>
+<div class="l"><span>Date</span><span>${new Date(o.t).toLocaleString('en-IN')}</span></div><div class="l"><span>Order for</span><span>${tl(o)}</span></div><div class="l"><span>Member</span><span>${c?esc(c.n):'Guest'}</span></div><hr>
+${o.items.map(x=>`<div class="l"><span>${x.q} × ${esc(price(x.id).n)}</span><span>${R(price(x.id).p*x.q)}</span></div>`).join('')}<hr>
+<div class="l"><span>Subtotal</span><span>${R(o.sub)}</span></div><div class="l"><span>Rewards discount (${o.dp}%)</span><span>−${R(o.disc)}</span></div><div class="l"><span>GST 5%</span><span>${R(o.tax)}</span></div><div class="l"><b>Total</b><b>${R(o.total)}</b></div><hr>
+<div style="text-align:center;font-size:11px">Demo bill. Pay at the counter. No online payment is taken.</div>
+<div class="row noprint" style="margin:12px 0 0"><button class="btn" data-a="printBill">Print</button><button class="btn ghost" data-a="closeBill">Close</button></div></div></div>`},
+closeBill(){$('#modal').innerHTML=''},
+printBill(){window.print()},
+resAdd(){const n=$('#rn').value.trim(),p=$('#rp').value,d=$('#rd').value,t=$('#rt').value,tb=+$('#rtb').value,g=Math.min(12,Math.max(1,+$('#rg').value||1));
+  if(!n)return toast('Please enter your name.');if(dg(p).length<10)return toast('Please enter a 10 digit phone number.');
+  if(!d||d<iso(Date.now())||(d==iso(Date.now())&&t<new Date().toTimeString().slice(0,5)))return toast('Please choose a future date and time.');
+  if(S.res.some(r=>r.st=='Confirmed'&&r.d==d&&r.t==t&&r.tb==tb))return toast('Table '+tb+' is already booked then. Try another table or time.');
+  S.res.push({id:nid(S.res),n,ph:p,g,d,t,tb,st:'Confirmed',mine:true});save();toast('Table '+tb+' booked for '+d+' at '+t+'.');render()},
+resCancel(i){S.res.find(r=>r.id==i).st='Cancelled';save();render()},
+qrOrder(){ui.tbl=ui.qt;A.nav('pos')},
+lookup(){const v=$('#lp').value,c=member(v);ui.lph=v;ui.me=c?c.id:0;if(!c)toast(dg(v).length<10?'Enter a 10 digit phone number.':'No member found with that number.');render()},
+useMe(){const c=S.cus.find(x=>x.id==ui.me);if(!c)return;ui.cust=c.id;ui.cph=c.ph;A.nav('pos')},
+cusAdd(){const n=$('#cn').value.trim(),p=$('#cp').value;if(!n)return toast('Please enter your name.');if(dg(p).length<10)return toast('Please enter a 10 digit phone number.');if(member(p))return toast('This number is already a member.');
+  const c={id:nid(S.cus),n,ph:p,pts:0,v:0};S.cus.push(c);ui.me=c.id;ui.lph=p;save();toast('Welcome, '+n+'! You are now a member.');render()},
+reset(){if(confirm('Clear all demo data saved in this browser?')){S=seed();M=S.menu;cart=[];ui.cust='';ui.cph='';ui.red=false;ui.disc=0;ui.me=0;save();render();toast('Demo data cleared.')}}};
+const C={
+q(v){ui.q=v;render()},tbl(v){ui.tbl=+v;render()},qt(v){ui.qt=+v;render()},
+cph(v){ui.cph=v;const c=member(v);ui.cust=c?c.id:'';if(!c||c.pts<100){ui.red=false;ui.disc=0}render()},
+red(v,el){ui.red=el.checked;ui.disc=ui.red?10:0;render()}};
+document.addEventListener('click',e=>{const b=e.target.closest('[data-a]');if(b)A[b.dataset.a](b.dataset.i)});
+document.addEventListener('input',e=>{const c=e.target.dataset.c;if(c&&e.target.type=='search')C[c](e.target.value,e.target)});
+document.addEventListener('change',e=>{const c=e.target.dataset.c;if(c&&e.target.type!='search')C[c](e.target.value,e.target)});
+if(S.theme)document.documentElement.dataset.theme=S.theme;
+try{const t=+new URLSearchParams(location.search).get('table');if(t>=1&&t<=10){ui.tbl=t;ui.qt=t;view='pos'}}catch(e){}
+render();
+</script>
+</body>
+</html>
