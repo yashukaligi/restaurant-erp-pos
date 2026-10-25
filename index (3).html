@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Spice Route – Menu, Order &amp; Book a Table</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;800&display=swap" rel="stylesheet">
+<script src="config.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+*{box-sizing:border-box}
+:root{--bg:#0a1428;--card:#111f3d;--tx:#eef3ff;--mut:#a3b4d6;--bd:#243a66;--pri:#2dd4bf;--onpri:#04202a;--soft:#12335a;--gold:#f5b942;--acc:#f5b942;--ok:#4ade80;--warn:#fbbf24;--bad:#f87171;--info:#7cb2ff;--side:#07101f;color-scheme:dark;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+:root[data-theme="light"]{--bg:#eef3fb;--card:#fff;--tx:#0f1b33;--mut:#51617f;--bd:#d3dcec;--pri:#0f766e;--onpri:#fff;--soft:#d9f0ed;--gold:#a16207;--acc:#a16207;--ok:#15803d;--warn:#b45309;--bad:#b91c1c;--info:#1d4ed8;--side:#0a1a36;color-scheme:light}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--tx);font:14px/1.5 Manrope,system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--bg);z-index:30}
+#side{position:fixed;inset:0 auto 0 0;width:240px;background:var(--side);color:#dcebe8;padding:calc(14px + env(safe-area-inset-top,0px)) 12px 14px;display:flex;flex-direction:column;gap:2px;z-index:40;overflow:auto;transition:transform .2s}
+.brand{font-weight:800;font-size:18px;padding:6px 10px 14px;color:#fff}.brand small{display:block;font-weight:400;font-size:11px;color:#8fb3ad}
+.nav{display:flex;gap:10px;align-items:center;background:none;border:0;color:inherit;font:inherit;text-align:left;padding:9px 10px;border-radius:8px;cursor:pointer;width:100%}
+.nav:hover{background:rgba(255,255,255,.07)}.nav.on{background:var(--pri);color:var(--onpri);font-weight:700;box-shadow:inset 4px 0 0 var(--gold)}
+.sp{flex:1}
+main{margin-left:240px;min-height:100vh}
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--bg);display:flex;align-items:center;gap:10px;padding:12px 20px;border-bottom:1px solid var(--bd)}
+.top h1{font-size:20px;margin:0;flex:1}
+#main{padding:20px;max-width:1300px}
+.menu-btn{display:none}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:16px;min-width:0}
+.card h3{margin:0 0 12px;font-size:15px}
+.grid{display:grid;gap:14px;margin-bottom:14px}.k{grid-template-columns:repeat(auto-fit,minmax(170px,1fr))}.two{grid-template-columns:1fr 1fr}.three{grid-template-columns:repeat(3,1fr)}
+.kpi b{display:block;font-size:24px;font-weight:800}.kpi span{color:var(--mut);font-size:12px}
+.kpi{border-left:4px solid var(--pri)}.kpi:nth-child(2){border-color:var(--acc)}.kpi:nth-child(3){border-color:var(--info)}.kpi:nth-child(4){border-color:var(--bad)}
+.note{background:var(--soft);border-radius:10px;padding:10px 14px;margin-bottom:14px;font-size:13px}
+.btn{background:var(--pri);color:var(--onpri);border:0;border-radius:8px;padding:9px 14px;font:inherit;font-weight:600;cursor:pointer}
+.btn.ghost{background:transparent;color:var(--tx);border:1px solid var(--bd)}.btn.sm{padding:4px 9px;font-size:12px}.btn.red{background:var(--bad);color:#fff}
+.btn:focus-visible,input:focus-visible,select:focus-visible,.nav:focus-visible,.item:focus-visible,.chip:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+input,select{font:inherit;color:var(--tx);background:var(--card);border:1px solid var(--bd);border-radius:8px;padding:8px 10px;max-width:100%}
+label{display:flex;flex-direction:column;gap:3px;font-size:12px;color:var(--mut);font-weight:600}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;margin-bottom:12px}.row>*{flex:1 1 130px}
+.tw{overflow-x:auto}table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;color:var(--mut);font-weight:600;padding:8px;border-bottom:1px solid var(--bd);white-space:nowrap}td{padding:8px;border-bottom:1px solid var(--bd);vertical-align:middle}.wrap{min-width:180px}
+td input{width:80px}
+.badge{display:inline-block;padding:2px 9px;border-radius:99px;font-size:11px;font-weight:700;background:var(--soft);color:var(--pri);white-space:nowrap}
+.b-Received,.b-Pending,.b-Confirmed{background:color-mix(in srgb,var(--info) 18%,transparent);color:var(--info)}.b-Preparing,.b-Low,.b-Absent,.b-Silver{background:color-mix(in srgb,var(--warn) 20%,transparent);color:var(--warn)}
+.b-Ready,.b-OK,.b-Present,.b-Seated,.b-Gold{background:color-mix(in srgb,var(--ok) 20%,transparent);color:var(--ok)}.b-Cancelled,.b-Out{background:color-mix(in srgb,var(--bad) 20%,transparent);color:var(--bad)}.b-Completed,.b-Off,.b-Bronze{background:var(--bd);color:var(--mut)}
+.bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;align-items:center}.bar input{flex:1 1 180px}
+.chip{border:1px solid var(--bd);background:var(--card);color:var(--tx);border-radius:99px;padding:6px 12px;font:inherit;cursor:pointer}.chip.on{background:var(--pri);color:var(--onpri);border-color:var(--pri)}
+.pos{display:grid;grid-template-columns:1fr 340px;gap:14px;align-items:start}
+.menu{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px}
+.item{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:12px;cursor:pointer;text-align:left;font:inherit;color:var(--tx);display:flex;flex-direction:column;gap:2px}
+.item:hover{border-color:var(--pri)}.item span{font-size:26px}.item small{color:var(--gold);font-weight:700}
+.cart{position:sticky;top:80px}
+.ci{display:flex;align-items:center;gap:6px;padding:6px 0;border-bottom:1px dashed var(--bd)}.ci b{flex:1;font-weight:600}
+.q{width:26px;height:26px;border-radius:6px;border:1px solid var(--bd);background:var(--card);color:var(--tx);cursor:pointer}
+.tot{display:flex;justify-content:space-between;padding:3px 0}.tot.g{font-size:18px;font-weight:800;border-top:2px solid var(--tx);margin-top:6px;padding-top:8px}
+.tk{border:1px solid var(--bd);border-radius:10px;padding:10px;margin-bottom:10px;display:flex;flex-direction:column;gap:6px;align-items:flex-start}
+.mut,small{color:var(--mut)}
+.ch{width:100%;height:auto}.dn{display:flex;gap:16px;align-items:center;flex-wrap:wrap}.dn ul{list-style:none;margin:0;padding:0}.dn li{display:flex;align-items:center;gap:8px;margin:3px 0}.dn i{width:12px;height:12px;border-radius:3px;display:inline-block}
+.center{text-align:center}
+.dish{background:var(--card);border:1px solid var(--bd);border-radius:14px;overflow:hidden;display:flex;flex-direction:column}.ph{height:120px;display:flex;align-items:center;justify-content:center;font-size:52px;position:relative}.ph img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.dish .bd{padding:12px;display:flex;flex-direction:column;gap:6px;flex:1}.dish p{margin:0;color:var(--mut);font-size:12px;flex:1}.price{color:var(--gold);font-weight:800}.stp{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.vm{display:inline-block;width:14px;height:14px;border:2px solid #16a34a;border-radius:3px;position:relative;vertical-align:middle;margin-right:6px}.vm::after{content:"";position:absolute;inset:2px;border-radius:50%;background:#16a34a}.vm.nv{border-color:#dc2626}.vm.nv::after{background:#dc2626}
+.hero{background:linear-gradient(135deg,#0b1d3f,#0f5f66);color:#fff;border-radius:16px;padding:34px 24px;margin-bottom:16px}.hero h2{font-size:clamp(26px,5vw,40px);margin:0 0 8px;line-height:1.15}.hero p{max-width:540px;margin:0 0 18px;opacity:.92}.hero .btn{background:#f5b942;color:#201500;margin:0 8px 8px 0;padding:12px 20px;font-size:15px}.hero .btn.ghost{background:transparent;color:#fff;border:1px solid rgba(255,255,255,.7)}
+.cats{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:16px}
+.steps{display:flex;gap:4px;margin:8px 0}.steps span{flex:1;text-align:center;font-size:11px;padding:5px 2px;border-radius:6px;background:var(--bd);color:var(--mut)}.steps .on{background:#0f766e;color:#fff}
+.cbar{display:none}
+@media(max-width:1000px){.cbar{display:flex;position:fixed;left:12px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom,0px));z-index:25;justify-content:space-between;align-items:center;background:#0f766e;color:#fff;border:0;border-radius:12px;padding:13px 16px;font:inherit;font-weight:700;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,.3)}#main{padding-bottom:88px}}
+.modal{position:fixed;inset:0;z-index:50;display:flex;align-items:center;justify-content:center;padding:16px}.back{position:absolute;inset:0;background:rgba(0,0,0,.55)}
+.rcpt{position:relative;background:#fff;color:#111;width:340px;max-width:100%;max-height:90vh;overflow:auto;border-radius:10px;padding:20px;font:13px/1.5 ui-monospace,Menlo,Consolas,monospace}.rcpt h2{margin:0;text-align:center;font-size:17px}.rcpt .l{display:flex;justify-content:space-between;gap:8px}.rcpt hr{border:0;border-top:1px dashed #888;margin:8px 0}.rcpt .btn.ghost{color:#111;border-color:#888}
+@media print{body *{visibility:hidden}.rcpt,.rcpt *,.qrp,.qrp *{visibility:visible}.rcpt,.qrp{position:absolute;left:0;top:0;width:100%;max-height:none}.qrp{background:#fff!important;border:0}.qrp,.qrp *{color:#000!important}.noprint{display:none!important}}#qr{display:inline-block;background:#fff;padding:12px;border-radius:10px;margin:12px 0}
+code{word-break:break-all;font-size:12px}
+#toast{position:fixed;bottom:calc(20px + env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%);background:var(--tx);color:var(--bg);padding:10px 18px;border-radius:99px;opacity:0;pointer-events:none;transition:opacity .2s;z-index:60}#toast.on{opacity:1}
+@media(max-width:1000px){.k{grid-template-columns:1fr 1fr}.two,.three{grid-template-columns:1fr}.pos{grid-template-columns:1fr}.cart{position:static}}
+@media(max-width:860px){#side{transform:translateX(-100%)}#side.open{transform:none}main{margin-left:0}.menu-btn{display:inline-flex}.top{padding:10px 14px}#main{padding:14px}}
+@media(max-width:480px){.k{grid-template-columns:1fr}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<aside id="side"></aside>
+<main>
+  <div class="top"><button class="btn ghost menu-btn" data-a="burger" aria-label="Open menu">☰</button><h1 id="ttl"></h1><button class="btn ghost sm" data-a="theme">Light/Dark</button></div>
+  <div id="main"></div>
+</main>
+<div id="toast"></div><div id="modal"></div>
+<script>
+/* ===== HOW THIS FILE IS ORGANISED (read me first) =====
+ 1. DATA    - the MENU list and seed() hold the sample dishes, prices, staff and orders. Edit them to change the demo data.
+ 2. STORAGE - load()/save() keep everything in localStorage (this browser only, NOT an online database).
+ 3. VIEWS   - V.home, V.pos, V.stat ... each function returns the HTML for one section.
+ 4. ACTIONS - A.* runs when a button with data-a="name" is clicked; C.* runs when an input or select with data-c="name" changes.
+ 5. render() redraws the screen after every change.
+===== */
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const R=n=>'₹'+Number(n).toLocaleString('en-IN');
+const SITE_URL=""; /* optional: your GitHub Pages address, e.g. "https://your-name.github.io/restaurant-erp-pos/" */
+const KEY='spice_route_erp_demo_v5';
+/* ---- Shared backend (Supabase) ---- config.js supplies the URL and public anon key. Without it the site runs in local demo mode. */
+/* ===== PASTE YOUR SUPABASE DETAILS HERE (or in config.js) =====
+   Project URL, e.g. 'https://abcdxyz.supabase.co', and the PUBLISHABLE key (starts with sb_publishable_) or the legacy anon key.
+   NEVER paste a secret key or service_role key here: this file is public. */
+const SUPABASE_URL='',SUPABASE_PUBLISHABLE_KEY='';
+const CFG=window.SR_CONFIG||{},BASE=(SUPABASE_URL||CFG.SUPABASE_URL||'').trim().replace(/\/$/,''),KEYA=(SUPABASE_PUBLISHABLE_KEY||CFG.SUPABASE_ANON_KEY||'').trim();
+function badKey(k){if(/^sb_secret_/.test(k))return true;if(!k.startsWith('eyJ'))return false;try{const r=JSON.parse(atob(k.split('.')[1].replace(/-/g,'+').replace(/_/g,'/'))).role;return r!=='anon'&&r!=='authenticated'}catch(e){return true}}
+const KEYBAD=badKey(KEYA),ONLINE=!!(/^https:\/\/[^\s\/]+/.test(BASE)&&KEYA&&!KEYBAD);
+if(KEYBAD)console.error('Spice Route: a secret or service key was detected and is being ignored. Use only the publishable key.');
+async function rpc(fn,args){const r=await fetch(BASE+'/rest/v1/rpc/'+fn,{method:'POST',headers:{apikey:KEYA,'Content-Type':'application/json',...(KEYA.startsWith('eyJ')?{Authorization:'Bearer '+KEYA}:{})},body:JSON.stringify(args)});if(!r.ok){let j={};try{j=await r.json()}catch(x){}const e=new Error(j.message||'HTTP '+r.status);e.code=j.code||'';e.status=r.status;console.error('Supabase '+fn+' failed:',r.status,j);throw e}return r.json()}
+const rpcMsg=(e,w)=>(e.code=='22023'||e.code=='54000')?e.message:(e.code=='PGRST202'||e.status==404)?'Sorry, '+w+' is unavailable right now. Please call the restaurant.':'Could not send your '+w+'. Please check your connection and try again.';
+const okPh=p=>/^[6-9][0-9]{9}$/.test(dg(p));
+const demoNote=()=>ONLINE?'':KEYBAD?'<div class="note">⚠ <b>A secret key was found in the website settings and ignored.</b> Use only the publishable key.</div>':'<div class="note">⚠ <b>Backend not connected:</b> orders and bookings are saved only on this device and are not sent to the restaurant. See SETUP.md to connect Supabase.</div>';
+function setStatus(o,st){o.status=st;if(st=='Completed'){o.paid=true;const c=S.cus.find(x=>x.id==o.cust);if(c&&!o.pts){o.pts=Math.floor(o.total/10);c.pts+=o.pts;c.v++}}}
+let syncing=false;
+async function sync(){if(!ONLINE||syncing)return;syncing=true;let ch=false;
+  try{const refs=S.orders.filter(o=>o.ref).map(o=>o.ref),rr=S.res.filter(r=>r.ref).map(r=>r.ref);
+    if(refs.length)(await rpc('my_orders',{p_refs:refs})).forEach(x=>{const o=S.orders.find(y=>y.ref==x.ref);if(o&&o.status!=x.status){setStatus(o,x.status);ch=true}});
+    if(rr.length)(await rpc('my_bookings',{p_refs:rr})).forEach(x=>{const b=S.res.find(y=>y.ref==x.ref);if(b&&b.st!=x.status){b.st=x.status;ch=true}});
+    if(ch){save();render()}}catch(e){}
+  syncing=false}
+setInterval(()=>{if(view=='stat'||view=='res')sync()},15000);
+
+const CATS=['Tiffins','Starters','Vegetarian','Non-Veg','Biryani and Rice','Breads','Main Course','Desserts','Beverages'];
+const ST=['Received','Preparing','Ready','Completed','Cancelled'];
+/* MENU: edit this list to change dishes. Each row is [id, name, category, price in ₹, emoji, 1=veg 0=non-veg, description].
+   To show a real photo, add the image file to your repository (for example images/paneer-tikka.jpg) and set img for that dish in the map() below. */
+const MENU=[
+[1,'Paneer Tikka','Starters',240,'🧀',1,'Charred cottage cheese with mint chutney'],[2,'Veg Spring Rolls','Starters',180,'🥟',1,'Crisp rolls stuffed with fresh vegetables'],
+[3,'Chicken 65','Starters',260,'🍗',0,'Spicy South Indian fried chicken bites'],[4,'Fish Fingers','Starters',290,'🐟',0,'Golden crumb-fried fish strips with tartare dip'],
+[5,'Mixed Veg Kurma','Vegetarian',220,'🥗',1,'Vegetables in a coconut and cashew gravy'],[6,'Gobi Manchurian','Vegetarian',210,'🥦',1,'Crispy cauliflower in a tangy soy-garlic sauce'],
+[7,'Aloo Gobi','Vegetarian',190,'🥔',1,'Potato and cauliflower tossed with warm spices'],[8,'Mushroom Pepper Fry','Vegetarian',230,'🍄',1,'Mushrooms stir-fried with crushed black pepper'],
+[9,'Chettinad Chicken','Non-Veg',330,'🌶',0,'Fiery chicken with freshly ground Chettinad masala'],[10,'Mutton Rogan Josh','Non-Veg',420,'🍖',0,'Slow-cooked mutton in a Kashmiri chilli gravy'],
+[11,'Egg Masala','Non-Veg',220,'🥚',0,'Boiled eggs simmered in onion-tomato masala'],[12,'Tandoori Chicken','Non-Veg',360,'🍗',0,'Clay-oven chicken marinated in yoghurt and spices'],
+[13,'Chicken Biryani','Biryani and Rice',320,'🍚',0,'Fragrant basmati layered with spiced chicken'],[14,'Mutton Biryani','Biryani and Rice',399,'🍚',0,'Dum-cooked biryani with tender mutton'],
+[15,'Veg Biryani','Biryani and Rice',250,'🍚',1,'Basmati rice cooked with vegetables and saffron'],[16,'Curd Rice','Biryani and Rice',120,'🥣',1,'Cooling rice with yoghurt, mustard and curry leaf'],
+[17,'Veg Fried Rice','Biryani and Rice',210,'🍳',1,'Wok-tossed rice with crunchy vegetables'],
+[18,'Kerala Parotta','Breads',35,'🫓',1,'Flaky layered flatbread'],[19,'Butter Naan','Breads',55,'🫓',1,'Soft tandoor-baked bread brushed with butter'],
+[20,'Garlic Naan','Breads',65,'🫓',1,'Tandoor naan topped with garlic and coriander'],[21,'Tandoori Roti','Breads',30,'🫓',1,'Whole-wheat bread baked in the tandoor'],
+[22,'Butter Chicken','Main Course',340,'🍛',0,'Tender chicken in a creamy tomato-butter gravy'],[23,'Paneer Butter Masala','Main Course',300,'🥘',1,'Cottage cheese in a rich, mildly sweet gravy'],
+[24,'Dal Makhani','Main Course',240,'🍲',1,'Black lentils simmered overnight with cream'],[25,'Fish Curry','Main Course',310,'🍲',0,'Tangy coastal curry with tamarind and coconut'],
+[26,'Gulab Jamun','Desserts',90,'🍮',1,'Soft milk dumplings in cardamom syrup'],[27,'Rasmalai','Desserts',110,'🍮',1,'Soft cheese discs in chilled saffron milk'],
+[28,'Payasam','Desserts',100,'🍨',1,'Warm vermicelli pudding with nuts and raisins'],[29,'Kulfi','Desserts',95,'🍦',1,'Traditional slow-frozen Indian ice cream'],
+[30,'Filter Coffee','Beverages',50,'☕',1,'Strong South Indian decoction coffee with milk'],[31,'Masala Chai','Beverages',40,'🍵',1,'Spiced milk tea brewed with ginger and cardamom'],
+[32,'Fresh Lime Soda','Beverages',70,'🍹',1,'Sweet or salted lime soda'],[33,'Mango Lassi','Beverages',110,'🥭',1,'Thick yoghurt drink blended with ripe mango'],
+/* Tiffins: edit the prices (4th value) here */
+[34,'Idli (2 pieces)','Tiffins',30,'🍥',1,'Two steamed rice cakes with sambar and chutney'],[35,'Ghee Podi Idli','Tiffins',60,'🧈',1,'Mini idlis tossed in ghee and spicy gunpowder'],
+[36,'Plain Dosa','Tiffins',40,'🥞',1,'Thin crisp rice-and-lentil crepe with chutney'],[37,'Masala Dosa','Tiffins',60,'🌯',1,'Crisp dosa filled with spiced potato masala'],
+[38,'Ghee Roast Dosa','Tiffins',80,'🧈',1,'Extra-crisp golden dosa roasted in ghee'],[39,'Onion Dosa','Tiffins',60,'🧅',1,'Dosa topped with chopped onion and green chilli'],
+[40,'Set Dosa (2 pieces)','Tiffins',50,'🥞',1,'Two soft, spongy dosas served with sagu'],[41,'Pongal','Tiffins',50,'🍲',1,'Creamy rice and moong dal with pepper and ghee'],
+[42,'Poori (2 pieces)','Tiffins',50,'🫓',1,'Two puffed fried breads with potato masala'],[43,'Vada (2 pieces)','Tiffins',30,'🍩',1,'Two crisp lentil doughnuts with sambar'],
+[44,'Upma','Tiffins',40,'🥣',1,'Savoury semolina cooked with vegetables and curry leaf'],[45,'Uttapam','Tiffins',60,'🥘',1,'Thick dosa topped with onion, tomato and chilli'],
+[46,'Chapati (2 pieces)','Tiffins',40,'🫓',1,'Two soft whole-wheat flatbreads with kurma'],[47,'Parotta (2 pieces)','Tiffins',50,'🫓',1,'Two flaky layered parottas with salna']
+/* Photos: put a file named after the dish in an images folder, e.g. images/idli.jpg, images/masala-dosa.jpg. If a photo is missing, the dish shows its own illustration instead. */
+].map(([id,n,c,p,e,v,d])=>({id,n,c,p,e,v,d,img:'images/'+n.replace(/\(.*\)/,'').trim().toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')+'.jpg'}));
+const NAV=[['home','🏠','Home'],['pos','🍽','Order Food'],['chk','💳','Checkout'],['stat','⏱','Order Status'],['res','📅','Book a Table'],['qr','📱','QR Menu'],['loy','⭐','Rewards']];
+let M=MENU;
+const price=id=>M.find(m=>m.id==id)||{n:'Removed item',p:0,c:'Mains'};
+function calc(items,dp){const sub=items.reduce((a,i)=>a+price(i.id).p*i.q,0),disc=Math.round(sub*dp/100),tax=Math.round((sub-disc)*.05);return{sub,disc,tax,total:sub-disc+tax}}
+function mk(items,dp,x){return Object.assign({items,dp,paid:true,status:'Completed',cust:0},calc(items,dp),x)}
+function seed(){return{orders:[],ono:1000,theme:'',res:[],
+  cus:[{id:1,n:'Ravi Shankar',ph:'98400 11111',pts:620,v:14},{id:2,n:'Anitha Murugan',ph:'98765 22222',pts:310,v:8},{id:3,n:'Suresh Babu',ph:'99440 33333',pts:150,v:5},{id:4,n:'Lakshmi Narayan',ph:'97900 44444',pts:480,v:11},{id:5,n:'Mohan Thiru',ph:'96000 55555',pts:60,v:2}]}}
+function load(){try{const s=localStorage.getItem(KEY);if(s){const o=JSON.parse(s);if(o&&o.orders)return o}}catch(e){}return seed()}
+let S=load();
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+let view='home',cart=(S.cart||[]).filter(i=>M.some(m=>m.id==i.id)),ui={q:'',cat:'All',vf:'all',tbl:1,ot:'dine',pm:'',cn:'',cust:'',cph:'',red:false,done:0,rdone:0,busy:false,qt:0,lph:'',me:0};
+const nid=a=>a.reduce((m,x)=>Math.max(m,x.id),0)+1;
+const items=o=>o.items.map(i=>i.q+'× '+esc(price(i.id).n)).join(', ');
+const opts=(n,sel)=>Array.from({length:n},(_,i)=>`<option ${i+1==sel?'selected':''}>${i+1}</option>`).join('');
+const tier=p=>p>=500?'Gold':p>=200?'Silver':'Bronze';
+function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(toast.h);toast.h=setTimeout(()=>t.classList.remove('on'),Math.max(2200,m.length*60))}
+const V={};
+const CI={Tiffins:'🥞',Starters:'🥟',Vegetarian:'🥗','Non-Veg':'🍗','Biryani and Rice':'🍚',Breads:'🫓','Main Course':'🍛',Desserts:'🍮',Beverages:'☕'},POP=[37,34,13,22,1,30];
+const dg=s=>String(s).replace(/\D/g,'').slice(-10);
+const tl=o=>o.table?'Table '+o.table:'Takeaway';
+const iso=t=>{const d=new Date(t);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')};
+const member=p=>dg(p).length==10?S.cus.find(c=>dg(c.ph)==dg(p)):null;
+const payl=o=>o.pm=='cash'?(o.paid?'Cash paid at restaurant':'Pay cash at restaurant'):'Demo '+(o.pm=='upi'?'UPI':'card')+' payment, no money charged';
+const card=m=>{const q=(cart.find(c=>c.id==m.id)||{}).q||0,h=CATS.indexOf(m.c)*45+170;
+  return `<div class="dish"><div class="ph" style="background:linear-gradient(135deg,hsl(${h} 55% 20%),hsl(${h+30} 60% 32%))">${m.e}${m.img?`<img loading="lazy" src="${esc(m.img)}" alt="${esc(m.n)}" onerror="this.remove()">`:''}</div><div class="bd"><b><i class="vm ${m.v?'':'nv'}" title="${m.v?'Vegetarian':'Non-vegetarian'}"></i>${esc(m.n)}</b><p>${esc(m.d)}</p><div class="stp"><span class="price">${R(m.p)}</span>${q?`<span class="stp"><button class="q" data-a="dec" data-i="${m.id}" aria-label="Decrease quantity">−</button><b>${q}</b><button class="q" data-a="inc" data-i="${m.id}" aria-label="Increase quantity">+</button></span>`:`<button class="btn sm" data-a="add" data-i="${m.id}">Add to Cart</button>`}</div></div></div>`};
+const lines=(arr,dp)=>{const t=calc(arr,dp);return arr.map(i=>`<div class="ci"><b>${esc(price(i.id).n)}</b><span>${i.q} × ${R(price(i.id).p)}</span><span class="price">${R(price(i.id).p*i.q)}</span></div>`).join('')+`<div class="tot"><span>Subtotal</span><span>${R(t.sub)}</span></div>${dp?`<div class="tot"><span>Rewards discount (${dp}%)</span><span>−${R(t.disc)}</span></div>`:''}<div class="tot"><span>GST 5% (included in bill)</span><span>${R(t.tax)}</span></div><div class="tot g"><span>Total payable</span><span>${R(t.total)}</span></div>`};
+V.home=()=>`<div class="hero"><h2>South &amp; North Indian flavours, made fresh to order</h2><p>Browse the menu, order for your table or takeaway, book a table, and earn reward points on every meal.</p><button class="btn" data-a="nav" data-i="pos">Order Now</button><button class="btn ghost" data-a="nav" data-i="res">Book a Table</button></div>
+  <h3>Food categories</h3><div class="cats">${CATS.map(c=>`<button class="item" data-a="gocat" data-i="${c}"><span>${CI[c]}</span><b>${c}</b><small class="mut">${M.filter(m=>m.c==c).length} dishes</small></button>`).join('')}</div>
+  <h3>Popular dishes</h3><div class="menu">${POP.map(id=>card(price(id))).join('')}</div>
+  <div class="grid three" style="margin-top:16px"><div class="card"><h3>🕚 Opening hours</h3><p class="mut">Open daily, 11:00 AM to 11:00 PM.</p></div><div class="card"><h3>🍽 Dine in or takeaway</h3><p class="mut">Choose your table or takeaway at checkout. Scan the QR code on your table to open the menu.</p></div><div class="card"><h3>⭐ Rewards</h3><p class="mut">Earn 1 point for every ₹10 you spend. Silver at 200 points, Gold at 500.</p></div></div>
+  ${demoNote()}<div class="note"><b>Payments are demo/test only:</b> UPI and card options take no real money. Pay by cash at the restaurant.</div>`;
+V.pos=()=>{const q=ui.q.toLowerCase(),t=calc(cart,0),l=M.filter(m=>(ui.cat=='All'||m.c==ui.cat)&&(ui.vf=='all'||(ui.vf=='veg')==!!m.v)&&(m.n+' '+m.d).toLowerCase().includes(q));
+  return `<div class="pos"><div><div class="bar"><input id="q" type="search" data-c="q" placeholder="Search dishes" value="${esc(ui.q)}" aria-label="Search dishes"><select data-c="vf" aria-label="Diet filter"><option value="all" ${ui.vf=='all'?'selected':''}>All dishes</option><option value="veg" ${ui.vf=='veg'?'selected':''}>🟢 Vegetarian</option><option value="nv" ${ui.vf=='nv'?'selected':''}>🔴 Non-vegetarian</option></select></div>
+  <div class="bar">${['All',...CATS].map(c=>`<button class="chip ${ui.cat==c?'on':''}" data-a="cat" data-i="${c}">${c}</button>`).join('')}</div>
+  <div class="menu">${l.map(card).join('')||'<p class="mut">No dishes match. Try another search or filter.</p>'}</div></div>
+  <div class="card cart" id="cartbox"><h3>Your cart</h3>${cart.map(i=>`<div class="ci"><b>${esc(price(i.id).n)}</b><button class="q" data-a="dec" data-i="${i.id}" aria-label="Decrease quantity">−</button>${i.q}<button class="q" data-a="inc" data-i="${i.id}" aria-label="Increase quantity">+</button><span class="price">${R(price(i.id).p*i.q)}</span><button class="q" data-a="rm" data-i="${i.id}" aria-label="Remove item">✕</button></div>`).join('')||'<p class="mut">Your cart is empty. Tap Add to Cart on any dish.</p>'}
+  <div class="tot"><span>Subtotal</span><span>${R(t.sub)}</span></div><div class="tot"><span>GST 5%</span><span>${R(t.tax)}</span></div><div class="tot g"><span>Total</span><span>${R(t.total)}</span></div>
+  <div class="row" style="margin:12px 0 0"><button class="btn" data-a="tochk">Proceed to Checkout</button><button class="btn ghost" data-a="clear">Clear cart</button></div></div></div>${cart.length?`<button class="cbar" data-a="gocart"><span>${cart.reduce((a,i)=>a+i.q,0)} items</span><span>View cart ${R(t.total)}</span></button>`:''}`};
+V.chk=()=>{
+  const d=ui.done&&S.orders.find(x=>x.no==ui.done);
+  if(d)return `<div class="card center"><h2>✅ Order #${d.no} confirmed${d.ref?'':' (demo)'}</h2><p class="mut">Thank you, ${esc(d.name)}! ${tl(d)} · ${payl(d)}</p><div style="max-width:460px;margin:auto;text-align:left">${lines(d.items,d.dp)}</div><p class="small">${d.pm=='cash'?'Pay in cash at the restaurant counter.':'No payment was taken: UPI and card are demo options, so please pay at the restaurant counter.'} ${d.ref?'Your order was sent to the restaurant. Order code: <b>'+d.ref+'</b>.':'Backend not connected, so the restaurant has not received this demo order.'}</p><div class="row" style="justify-content:center"><button class="btn" data-a="nav" data-i="stat">Track order</button><button class="btn ghost" data-a="bill" data-i="${d.no}">View bill</button><button class="btn ghost" data-a="nav" data-i="pos">Order more</button></div></div>`;
+  if(!cart.length)return `<div class="card center"><h3>Your cart is empty</h3><p class="mut">Add dishes from the menu before checking out.</p><button class="btn" data-a="nav" data-i="pos">Browse the menu</button></div>`;
+  const c=member(ui.cph),rd=!ONLINE&&!!(ui.red&&c&&c.pts>=100),notes={upi:'UPI (demo): no UPI app opens and no money moves. A real site would send you to a payment gateway such as Razorpay. Never type a UPI PIN on a site like this.',card:'Card (demo): this site never asks for card numbers, CVV or PINs. A real site would use the gateway’s secure hosted payment page.',cash:'Pay in cash at the restaurant counter.','':'Choose how you would like to pay.'};
+  return `${demoNote()}<div class="note"><b>Payment demo:</b> UPI and card are test options only. No real payment is processed and card or UPI details are never collected or stored.</div><div class="grid two"><div class="card"><h3>Your details</h3><div class="row"><label>Name<input id="cnm" type="search" autocomplete="name" data-c="cnm" value="${esc(ui.cn)}"></label><label>Phone<input id="cph" type="search" inputmode="tel" data-c="cph" value="${esc(ui.cph)}" placeholder="10 digit number"><small>${c?'Rewards member: '+esc(c.n)+', '+c.pts+' points':'Use your rewards phone number to earn points'}</small></label></div>
+  <div class="row"><label>Order type<select data-c="ot"><option value="dine" ${ui.ot=='dine'?'selected':''}>Dine-in</option><option value="take" ${ui.ot=='take'?'selected':''}>Takeaway</option></select></label>${ui.ot=='dine'?`<label>Table number<select data-c="tbl">${opts(10,ui.tbl)}</select></label>`:''}</div><p class="small">Delivery is not offered in this demo; it needs riders, address checks and a backend.</p>
+  ${!ONLINE&&c&&c.pts>=100?`<label style="flex-direction:row;align-items:center;gap:8px;margin-bottom:10px"><input type="checkbox" data-c="red" ${ui.red?'checked':''}> Use 100 reward points for 10% off</label>`:''}
+  <h3>Payment method</h3><div class="bar">${[['upi','UPI'],['card','Debit / Credit card'],['cash','Cash at restaurant']].map(p=>`<button class="chip ${ui.pm==p[0]?'on':''}" data-a="pm" data-i="${p[0]}">${p[1]}</button>`).join('')}</div><p class="small">${notes[ui.pm]}</p></div>
+  <div class="card"><h3>Order summary</h3>${lines(cart,rd?10:0)}<button class="btn" data-a="checkout" style="width:100%;margin-top:12px">Place order · ${R(calc(cart,rd?10:0).total)}</button><button class="btn ghost" data-a="nav" data-i="pos" style="width:100%;margin-top:8px">Back to menu</button></div></div>`};
+V.stat=()=>{const l=S.orders.filter(o=>o.mine).sort((a,b)=>b.t-a.t),stp=['Received','Preparing','Ready','Completed'];
+  return `${ONLINE?'<div class="note">Status updates come live from the restaurant and refresh automatically. You see only orders placed on this device.</div>':demoNote()+'<div class="note">Demo mode: the “Demo: next stage” button simulates the kitchen.</div>'}`+(l.map(o=>`<div class="card" style="margin-bottom:12px"><div class="bar" style="margin:0"><b>Order #${o.no}, ${tl(o)}</b><span class="badge b-${o.status}">${o.status}</span><span class="small">${new Date(o.t).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'})}</span></div>${o.status=='Cancelled'?'':`<div class="steps">${stp.map((s,i)=>`<span class="${i<=stp.indexOf(o.status)?'on':''}">${s}</span>`).join('')}</div>`}<p>${items(o)}</p><b>${R(o.total)}</b> <span class="badge b-Ready">${payl(o)}</span><div class="row" style="margin:10px 0 0"><button class="btn sm ghost" data-a="bill" data-i="${o.no}">View bill</button>${!ONLINE&&o.status=='Received'?`<button class="btn sm ghost" data-a="edit" data-i="${o.no}">Change items</button><button class="btn sm ghost" data-a="cancel" data-i="${o.no}">Cancel order</button>`:''}${!ONLINE&&['Received','Preparing','Ready'].includes(o.status)?`<button class="btn sm" data-a="kadv" data-i="${o.no}">Demo: next stage</button>`:''}</div></div>`).join('')||`<div class="card center"><h3>No orders yet</h3><p class="mut">Your orders will show up here.</p><button class="btn" data-a="nav" data-i="pos">Order Now</button></div>`)};
+V.res=()=>{const td=iso(Date.now()),l=S.res.filter(r=>r.mine).sort((a,b)=>(a.d+a.t).localeCompare(b.d+b.t)),b=ui.rdone&&S.res.find(r=>r.id==ui.rdone),
+  times=Array.from({length:24},(_,i)=>{const m=660+i*30,t=String(Math.floor(m/60)).padStart(2,'0')+':'+(m%60?'30':'00');return `<option ${t=='19:00'?'selected':''}>${t}</option>`}).join('');
+  return demoNote()+(b?`<div class="card center" style="margin-bottom:14px"><h3>✅ Booking request received${b.ref?'':' (demo)'}</h3><p>${esc(b.n)}, ${b.g} guest${b.g>1?'s':''} on ${b.d} at ${b.t}.</p><p class="mut">${b.ref?'The restaurant will confirm your booking. Your booking code is <b>'+b.ref+'</b>.':'Backend not connected, so the restaurant has not received this demo booking.'}</p></div>`:'')+
+  `<div class="card"><h3>Book a table</h3><div class="row"><label>Your name<input id="rn" autocomplete="name"></label><label>Phone<input id="rp" type="tel"></label><label>Guests<input id="rg" type="number" min="1" max="20" value="2"></label><label>Date<input id="rd" type="date" min="${td}" max="${iso(Date.now()+90*864e5)}" value="${td}"></label><label>Time<select id="rt">${times}</select></label></div><label>Special requests (optional)<input id="rs" maxlength="200" placeholder="e.g. birthday, high chair, window seat"></label><div class="row" style="margin:12px 0 0"><button class="btn" data-a="resAdd">Request booking</button></div><p class="small">Your details go only to the restaurant. Other customers cannot see any bookings. Open daily 11:00 AM to 11:00 PM.</p></div><br>
+  <div class="card"><h3>Your bookings on this device</h3><div class="tw"><table><tr><th>Code</th><th>Date</th><th>Time</th><th>Guests</th><th>Status</th></tr>${l.map(r=>`<tr><td>${r.ref||'demo'}</td><td>${r.d}</td><td>${r.t}</td><td>${r.g}</td><td><span class="badge b-${r.st}">${r.st}</span></td></tr>`).join('')||'<tr><td colspan="5">No bookings yet.</td></tr>'}</table></div></div>`};
+/* QR menu: set SITE_URL near the top of this script to your GitHub Pages address, or type it on the QR Menu page. */
+function siteUrl(){const v=(SITE_URL||S.site||'').trim();if(v)return v;return /\.github\.io$/.test(location.hostname)?location.origin+location.pathname:''}
+function menuLink(){let b=siteUrl().split(/[?#]/)[0];if(!b)return '';if(!/\/$|\.html$/.test(b))b+='/';return b+'?menu=1'+(ui.qt?'&table='+ui.qt:'')}
+V.qr=()=>{const l=menuLink();
+  return `<div class="grid two"><div class="card center qrp"><h3>Menu QR code</h3>${l?`<label style="max-width:220px;margin:auto">Table<select data-c="qt"><option value="0" ${ui.qt?'':'selected'}>Whole restaurant</option>${opts(10,ui.qt)}</select></label><div id="qr"></div><p class="small">Scanning opens the menu directly:<br><code>${esc(l)}</code></p><div class="row noprint" style="justify-content:center"><button class="btn" data-a="copyLink">Copy Menu Link</button><button class="btn ghost" data-a="dlQr">Download QR</button><button class="btn ghost" data-a="printQr">Print QR</button><button class="btn ghost" data-a="qrOrder">Open menu</button></div>`:'<p class="mut">Enter your published website address on the right to create the QR code. It cannot be made from a preview or a local file.</p>'}</div>
+  <div class="card"><h3>Published website address</h3><p class="small">Opened from your GitHub Pages address, this is detected automatically. Otherwise type it here.</p><div class="row"><label>Website URL<input id="su" type="url" value="${esc(siteUrl())}" placeholder="https://your-name.github.io/restaurant-erp-pos/"></label><button class="btn" data-a="saveSite">Save</button></div><h3>How it works</h3><p class="small">The QR code holds your site address plus <code>?menu=1</code>, so the phone browser opens the Order Food menu directly. Adding <code>&amp;table=4</code> pre-selects dine-in table 4.</p></div></div>`};
+V.loy=()=>{const c=S.cus.find(x=>x.id==ui.me),nx=c?(c.pts>=500?0:c.pts>=200?500:200):0;
+  return `<div class="grid two"><div class="card"><h3>Check your points</h3><div class="row"><label>Phone number<input id="lp" type="tel" value="${esc(ui.lph)}" placeholder="98400 11111"></label><button class="btn" data-a="lookup">Check</button></div>${c?`<h2 style="margin:6px 0">${esc(c.n)} <span class="badge b-${tier(c.pts)}">${tier(c.pts)}</span></h2><b style="font-size:28px">${c.pts}</b> points · ${c.v} visits<div style="height:8px;background:var(--bd);border-radius:99px;margin:10px 0"><div style="width:${nx?Math.min(100,c.pts/nx*100):100}%;height:100%;background:var(--pri);border-radius:99px"></div></div><p class="small">${nx?(nx-c.pts)+' more points to '+(nx==200?'Silver':'Gold'):'You are a Gold member!'} ${c.pts>=100?'You can use 100 points for 10% off when you order.':''}</p><button class="btn" data-a="useMe">Order with my points</button>`:'<p class="mut">Enter the phone number you joined with. Demo member: 98400 11111.</p>'}</div>
+  <div class="card"><h3>Join rewards</h3><div class="row"><label>Name<input id="cn"></label><label>Phone<input id="cp" type="tel"></label><button class="btn" data-a="cusAdd">Join free</button></div><p class="small">Earn 1 point per ₹10 once your order is served. Redeem 100 points for 10% off. Demo only: membership is saved in this browser, there is no login or verification, so a real rewards scheme needs a backend.</p></div></div>`};
+function render(){
+  const a=document.activeElement,id=a&&a.id,pos=a&&a.selectionStart,n=cart.reduce((s,i)=>s+i.q,0);
+  $('#side').innerHTML='<div class="brand">🌶 Spice Route<small>Order online · Dine in</small></div>'+NAV.map(x=>`<button class="nav ${x[0]==view?'on':''}" data-a="nav" data-i="${x[0]}">${x[1]} ${x[2]}${x[0]=='chk'&&n?`<span class="badge" style="margin-left:auto">${n}</span>`:''}</button>`).join('')+'<div class="sp"></div><button class="nav" data-a="reset">♻ Clear my demo data</button>';
+  $('#ttl').textContent=view=='home'?'Welcome to Spice Route':NAV.find(x=>x[0]==view)[2];
+  S.cart=cart;save();
+  $('#main').innerHTML=V[view]();
+  if(id){const e=document.getElementById(id);if(e){e.focus();try{e.setSelectionRange(pos,pos)}catch(x){}}}
+  if(view=='qr'){const el=$('#qr'),l=menuLink();if(el&&l){if(window.QRCode)new QRCode(el,{text:l,width:200,height:200,correctLevel:QRCode.CorrectLevel.M});else el.textContent='The QR library needs an internet connection.'}}
+}
+const A={
+burger(){$('#side').classList.toggle('open')},
+theme(){const d=document.documentElement,l=d.dataset.theme=='light';d.dataset.theme=l?'dark':'light';S.theme=d.dataset.theme;save()},
+nav(v){view=v;ui.q='';if(v!='chk')ui.done=0;if(v!='res')ui.rdone=0;if(v=='stat'||v=='res')sync();$('#side').classList.remove('open');render();scrollTo(0,0)},
+cat(c){ui.cat=c;render()},
+gocat(c){ui.cat=c;A.nav('pos')},
+gocart(){const e=$('#cartbox');if(e)e.scrollIntoView({behavior:'smooth'})},
+add(i){const x=cart.find(c=>c.id==i);x?x.q++:cart.push({id:+i,q:1});toast(price(i).n+' added to your order');render()},
+inc(i){cart.find(c=>c.id==i).q++;render()},
+dec(i){const x=cart.find(c=>c.id==i);if(--x.q<1)cart=cart.filter(c=>c!==x);render()},
+rm(i){cart=cart.filter(c=>c.id!=i);render()},
+clear(){cart=[];ui.red=false;ui.disc=0;render()},
+tochk(){if(!cart.length)return toast('Your cart is empty. Add a dish first.');A.nav('chk')},
+pm(i){ui.pm=i;render()},
+async checkout(){const n=ui.cn.trim();
+  if(!cart.length)return toast('Your cart is empty.');
+  if(n.length<2)return toast('Please enter your name.');
+  if(!okPh(ui.cph))return toast('Please enter a valid 10 digit mobile number starting with 6, 7, 8 or 9.');
+  if(!ui.pm)return toast('Please choose a payment method.');
+  if(ui.busy)return;
+  const c=member(ui.cph),rd=!ONLINE&&!!(c&&ui.red&&c.pts>=100),t=calc(cart,rd?10:0),table=ui.ot=='dine'?(+ui.tbl||1):0;let id={no:++S.ono};
+  if(ONLINE){ui.busy=true;toast('Sending your order…');
+    try{const r=await rpc('place_order',{p_name:n,p_phone:dg(ui.cph),p_type:ui.ot,p_table:table,p_pm:ui.pm,p_items:cart.map(i=>({id:i.id,q:i.q}))});id={no:r.order_no,ref:r.ref,tot:{sub:r.subtotal,disc:r.discount,tax:r.tax,total:r.total}}}
+    catch(e){ui.busy=false;return toast(rpcMsg(e,'order'))}
+    ui.busy=false}
+  if(rd)c.pts-=100;
+  const o=mk(cart.map(i=>({...i})),rd?10:0,Object.assign({table,t:Date.now(),status:'Received',paid:ui.pm!='cash',cust:c?c.id:0,mine:true,red:rd,name:n,phone:ui.cph,ot:ui.ot,pm:ui.pm},id));
+  if(id.tot){Object.assign(o,id.tot);delete o.tot}S.orders.push(o);cart=[];ui.red=false;ui.done=o.no;save();toast('Order #'+o.no+' confirmed.');render();scrollTo(0,0)},
+copyLink(){const l=menuLink();if(!l)return toast('Enter your published website address first.');
+  const ok=()=>toast('Menu link copied.'),fb=()=>{const t=document.createElement('textarea');t.value=l;document.body.appendChild(t);t.select();try{document.execCommand('copy');ok()}catch(e){toast('Copy failed. Please copy the link by hand.')}t.remove()};
+  navigator.clipboard?navigator.clipboard.writeText(l).then(ok,fb):fb()},
+dlQr(){const c=document.querySelector('#qr canvas');if(!c)return toast('The QR code is not ready yet.');const a=document.createElement('a');a.href=c.toDataURL('image/png');a.download='spice-route-menu-qr'+(ui.qt?'-table-'+ui.qt:'')+'.png';a.click()},
+printQr(){window.print()},
+saveSite(){const v=$('#su').value.trim();if(!/^https:\/\//i.test(v)||/claude\.ai|localhost|127\.0\.0\.1/i.test(v))return toast('Enter your live https address, e.g. https://your-name.github.io/restaurant-erp-pos/');S.site=v;save();toast('Website address saved.');render()},
+edit(i){const o=S.orders.find(x=>x.no==i);if(!o||o.status!='Received')return;const c=S.cus.find(x=>x.id==o.cust);if(o.red&&c)c.pts+=100;
+  cart=o.items.map(x=>({...x}));ui.tbl=o.table||1;ui.red=!!o.red;ui.disc=o.red?10:0;ui.cust=o.cust||'';ui.cph=o.phone||(c?c.ph:'');ui.cn=o.name||'';ui.ot=o.ot||'dine';ui.pm=o.pm||'';S.orders=S.orders.filter(x=>x!==o);save();view='pos';toast('Your items are back in the cart. Place the order again when ready.');render()},
+cancel(i){const o=S.orders.find(x=>x.no==i);if(!o||o.status!='Received')return;const c=S.cus.find(x=>x.id==o.cust);if(o.red&&c)c.pts+=100;o.status='Cancelled';save();toast('Order #'+i+' cancelled.');render()},
+kadv(i){const o=S.orders.find(x=>x.no==i),nx={Received:'Preparing',Preparing:'Ready',Ready:'Completed'};if(!o||!nx[o.status])return;setStatus(o,nx[o.status]);if(o.status=='Completed'&&o.pts)toast('Order completed. You earned '+o.pts+' reward points.');save();render()},
+bill(i){const o=S.orders.find(x=>x.no==i);if(!o)return;const c=S.cus.find(x=>x.id==o.cust);
+$('#modal').innerHTML=`<div class="modal"><div class="back" data-a="closeBill"></div><div class="rcpt"><h2>Spice Route</h2><div style="text-align:center">Bill #${o.no}</div><hr>
+<div class="l"><span>Date</span><span>${new Date(o.t).toLocaleString('en-IN')}</span></div><div class="l"><span>Order for</span><span>${tl(o)}</span></div><div class="l"><span>Customer</span><span>${esc(o.name||(c?c.n:'Guest'))}</span></div><div class="l"><span>Payment</span><span>${payl(o)}</span></div><hr>
+${o.items.map(x=>`<div class="l"><span>${x.q} × ${esc(price(x.id).n)}</span><span>${R(price(x.id).p*x.q)}</span></div>`).join('')}<hr>
+<div class="l"><span>Subtotal</span><span>${R(o.sub)}</span></div><div class="l"><span>Rewards discount (${o.dp}%)</span><span>−${R(o.disc)}</span></div><div class="l"><span>GST 5%</span><span>${R(o.tax)}</span></div><div class="l"><b>Total</b><b>${R(o.total)}</b></div><hr>
+<div style="text-align:center;font-size:11px">Demo bill. No real payment was taken.</div>
+<div class="row noprint" style="margin:12px 0 0"><button class="btn" data-a="printBill">Print</button><button class="btn ghost" data-a="closeBill">Close</button></div></div></div>`},
+closeBill(){$('#modal').innerHTML=''},
+printBill(){window.print()},
+async resAdd(){const n=$('#rn').value.trim(),p=$('#rp').value,d=$('#rd').value,t=$('#rt').value,g=Math.min(20,Math.max(1,+$('#rg').value||1)),rq=$('#rs').value.trim().slice(0,200);
+  if(n.length<2)return toast('Please enter your name.');if(!okPh(p))return toast('Please enter a valid 10 digit mobile number starting with 6, 7, 8 or 9.');
+  if(!d||d<iso(Date.now())||(d==iso(Date.now())&&t<new Date().toTimeString().slice(0,5)))return toast('Please choose a future date and time.');
+  const b={id:nid(S.res),n,ph:p,g,d,t,rq,st:'Pending',mine:true};
+  if(ONLINE){try{b.ref=(await rpc('place_booking',{p_name:n,p_phone:dg(p),p_date:d,p_time:t,p_guests:g,p_requests:rq})).ref}catch(e){return toast(rpcMsg(e,'booking'))}}
+  S.res.push(b);ui.rdone=b.id;save();toast('Booking request sent.');render();scrollTo(0,0)},
+resCancel(i){S.res.find(r=>r.id==i).st='Cancelled';save();render()},
+qrOrder(){if(ui.qt){ui.tbl=ui.qt;ui.ot='dine'}A.nav('pos')},
+lookup(){const v=$('#lp').value,c=member(v);ui.lph=v;ui.me=c?c.id:0;if(!c)toast(dg(v).length<10?'Enter a 10 digit phone number.':'No member found with that number.');render()},
+useMe(){const c=S.cus.find(x=>x.id==ui.me);if(!c)return;ui.cust=c.id;ui.cph=c.ph;A.nav('pos')},
+cusAdd(){const n=$('#cn').value.trim(),p=$('#cp').value;if(!n)return toast('Please enter your name.');if(dg(p).length<10)return toast('Please enter a 10 digit phone number.');if(member(p))return toast('This number is already a member.');
+  const c={id:nid(S.cus),n,ph:p,pts:0,v:0};S.cus.push(c);ui.me=c.id;ui.lph=p;save();toast('Welcome, '+n+'! You are now a member.');render()},
+reset(){if(confirm('Clear all demo data saved in this browser?')){S=seed();cart=[];ui.cust='';ui.cph='';ui.red=false;ui.disc=0;ui.me=0;save();render();toast('Demo data cleared.')}}};
+const C={
+q(v){ui.q=v;render()},cnm(v){ui.cn=v;render()},ot(v){ui.ot=v;render()},vf(v){ui.vf=v;render()},tbl(v){ui.tbl=+v;render()},qt(v){ui.qt=+v;render()},
+cph(v){ui.cph=v;const c=member(v);ui.cust=c?c.id:'';if(!c||c.pts<100){ui.red=false;ui.disc=0}render()},
+red(v,el){ui.red=el.checked;ui.disc=ui.red?10:0;render()}};
+document.addEventListener('click',e=>{const b=e.target.closest('[data-a]');if(b)A[b.dataset.a](b.dataset.i)});
+document.addEventListener('input',e=>{const c=e.target.dataset.c;if(c&&e.target.type=='search')C[c](e.target.value,e.target)});
+document.addEventListener('change',e=>{const c=e.target.dataset.c;if(c&&e.target.type!='search')C[c](e.target.value,e.target)});
+if(S.theme)document.documentElement.dataset.theme=S.theme;
+try{const P=new URLSearchParams(location.search),t=+P.get('table');if(t>=1&&t<=10){ui.tbl=t;ui.qt=t;ui.ot='dine'}if(P.has('menu')||t>=1||location.hash=='#menu')view='pos'}catch(e){}
+render();sync();
+</script>
+</body>
+</html>
