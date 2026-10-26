@@ -97,9 +97,10 @@ const R=n=>'₹'+Number(n).toLocaleString('en-IN');
 const SITE_URL=""; /* optional: your GitHub Pages address, e.g. "https://your-name.github.io/restaurant-erp-pos/" */
 const KEY='spice_route_erp_demo_v5';
 /* ---- Shared backend (Supabase) ---- config.js supplies the URL and public anon key. Without it the site runs in local demo mode. */
-/* ===== PASTE YOUR SUPABASE DETAILS HERE (or in config.js) =====
-   Project URL, e.g. 'https://abcdxyz.supabase.co', and the PUBLISHABLE key (starts with sb_publishable_) or the legacy anon key.
-   NEVER paste a secret key or service_role key here: this file is public. */
+/* ===== SUPABASE SETTINGS =====
+   Preferred: fill in config.js (a separate file, so replacing index.html never erases your settings).
+   You may also paste the Project URL and PUBLISHABLE key between the quotes below, but they are lost whenever
+   index.html is replaced. NEVER paste a secret key or service_role key: this file is public. */
 const SUPABASE_URL='',SUPABASE_PUBLISHABLE_KEY='';
 const CFG=window.SR_CONFIG||{},clean=v=>String(v||'').replace(/^[\s"'`]+|[\s"'`]+$/g,''),RAWURL=clean(SUPABASE_URL||CFG.SUPABASE_URL),
 BASE=(()=>{try{return RAWURL?new URL(RAWURL).origin:''}catch(e){return ''}})(),KEYA=clean(SUPABASE_PUBLISHABLE_KEY||CFG.SUPABASE_ANON_KEY);
@@ -182,7 +183,7 @@ const tl=o=>o.table?'Table '+o.table:'Takeaway';
 const iso=t=>{const d=new Date(t);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')};
 const member=p=>dg(p).length==10?S.cus.find(c=>dg(c.ph)==dg(p)):null;
 const payl=o=>o.pm=='cash'?(o.paid?'Cash paid at restaurant':'Pay cash at restaurant'):'Demo '+(o.pm=='upi'?'UPI':'card')+' payment, no money charged';
-const BUILD='b11-2026-10-26';
+const BUILD='b12-2026-10-26';
 /* Dish pictures: one drawn illustration per dish, built into this file so they always load (GitHub Pages included).
    Format: 'kind,main colour,accent colour,extra'. A real photo at images/<dish-name>.jpg is shown on top when it exists. */
 const ART={1:'cubes,#d9822b,#7c2d12',2:'rolls,#e0a458,#8a5a1c',3:'bites,#b91c1c,#7f1d1d',4:'fingers,#e2a23b,#f4e3b1',
@@ -262,8 +263,8 @@ V.loy=()=>{const c=S.cus.find(x=>x.id==ui.me),nx=c?(c.pts>=500?0:c.pts>=200?500:
    Real protection is the Supabase login plus Row Level Security, not the hidden address. ---- */
 const OW={tok:'',who:'',tab:'active',at:'',err:'',O:[],Q:[],msg:'',f:{os:'',oq:'',qd:'',qs:'',qq:''}};
 try{OW.tok=sessionStorage.getItem('srt')||'';OW.who=sessionStorage.getItem('srw')||''}catch(e){}
-function cfgStatus(){return [['Project URL',BASE?(/^https:\/\/[^\s\/]+/.test(BASE)?'set ('+BASE.replace(/^https:\/\//,'')+')':'INVALID: must start with https://'):'EMPTY'],
-  ['Publishable key',!KEYA?'EMPTY':KEYBAD?'REJECTED: looks like a secret/service key, never use it here':'set ('+(KEYA.startsWith('sb_publishable_')?'publishable key':KEYA.startsWith('eyJ')?'legacy anon key':'unknown format')+')']]}
+function cfgStatus(){return [['Project URL',RAWURL?(BASE?(/^https:/.test(BASE)?'set ('+BASE.replace(/^https:\/\//,'')+')':'INVALID: must start with https://'):'INVALID: must look like https://abcdxyz.supabase.co'):'EMPTY'],
+  ['Publishable key',!KEYA?'EMPTY':KEYBAD?'REJECTED: looks like a secret/service key, never use it here':'set ('+(KEYA.startsWith('sb_publishable_')?'publishable key':KEYA.startsWith('eyJ')?'legacy anon key':'unknown format')+')'],['config.js file',window.SR_CONFIG?'found':'not found (fine if the values are inside index.html)']]}
 const chkCard=()=>`<div class="card" style="max-width:480px;margin:14px auto"><button class="btn ghost sm" data-a="oCheck">Run connection check</button> <button class="btn ghost sm" data-a="oTest">Test saving</button>${OW.chk?`<div class="tw"><table>${OW.chk.map(r=>`<tr><td>${esc(r[0])}</td><td style="color:var(--${/^(OK|Note)/.test(r[1])?'ok':'bad'})">${esc(r[1])}</td></tr>`).join('')}</table></div>`:'<p class="small">Connection check: Supabase reachable, functions exist, customers cannot read orders or bookings. Test saving: books 1 test table and 1 test takeaway order (named TEST Connection) exactly as a customer would, reads them back, and checks the owner can see them. Set them to Cancelled afterwards.</p>'}</div>`;
 const OS=['Received','Preparing','Ready','Completed','Cancelled'],QS=['Pending','Confirmed','Cancelled'];
 async function oapi(path,o={}){const r=await fetch(BASE+path,{...o,headers:{apikey:KEYA,'Content-Type':'application/json',...(OW.tok?{Authorization:'Bearer '+OW.tok}:KEYA.startsWith('eyJ')?{Authorization:'Bearer '+KEYA}:{}),...(o.headers||{})}});if(r.status==401){oOut('Your session expired. Please sign in again.');throw new Error('auth')}if(!r.ok)throw new Error(await r.text());return r.status==204?null:r.json()}
@@ -275,7 +276,7 @@ async function oLoad(){OW.at=new Date().toLocaleTimeString('en-IN');
 async function oSet(t,id,v){try{await oapi('/rest/v1/'+t+'?id=eq.'+encodeURIComponent(id),{method:'PATCH',headers:{Prefer:'return=minimal'},body:JSON.stringify({status:v})});await oLoad();render();toast('Status updated.')}catch(e){toast('Could not update the status. Please try again.')}}
 setInterval(()=>{if(view=='owner'&&OW.tok&&!['INPUT','SELECT'].includes((document.activeElement||{}).tagName))oLoad().then(render).catch(()=>render())},20000);
 V.owner=()=>{
-  if(!ONLINE)return `<div class="card"><h3>🔐 Owner Login: database not connected</h3><p>The owner sign-in needs your Supabase details, and this copy of the website cannot see them:</p><div class="tw"><table>${cfgStatus().map(r=>`<tr><td>${r[0]}</td><td>${esc(r[1])}</td></tr>`).join('')}</table></div><p class="small">Fix: paste your Project URL into <code>SUPABASE_URL</code> and your publishable key into <code>SUPABASE_PUBLISHABLE_KEY</code> near the top of the script in index.html (or fill config.js), upload the file again, wait 2 minutes and reload. This file is build ${BUILD}.</p></div>`;
+  if(!ONLINE)return `<div class="card"><h3>🔐 Owner Login: database not connected</h3><p>The owner sign-in needs your Supabase details, and this copy of the website cannot see them:</p><div class="tw"><table>${cfgStatus().map(r=>`<tr><td>${r[0]}</td><td>${esc(r[1])}</td></tr>`).join('')}</table></div><p class="small">Fix: open <b>config.js</b> in your GitHub repository, type your Project URL and publishable key between the quotes, and commit. config.js is a separate file, so replacing index.html later will not erase it. Wait 2 minutes, then reload. This file is build ${BUILD}.</p></div>`;
   if(!OW.tok)return `<div class="card" style="max-width:380px;margin:30px auto"><h3>🔐 Owner Login</h3>${OW.msg?`<p style="color:var(--bad)">${esc(OW.msg)}</p>`:''}<div class="row"><label>Email<input id="oem" type="email" autocomplete="username"></label><label>Password<input id="opw" type="password" autocomplete="current-password"></label></div><button class="btn" data-a="oLogin" style="width:100%">Sign in</button><p class="small">For the restaurant owner only. Sign-in is checked by Supabase; orders and bookings are protected by database rules, so customers cannot see them.</p></div>${chkCard()}`;
   const f=OW.f,oq=f.oq.toLowerCase(),qq=f.qq.toLowerCase(),live=['Received','Preparing','Ready'],
   all=OW.O.filter(o=>(!f.os||o.status==f.os)&&(!oq||(o.customer_name+o.phone+o.order_no).toLowerCase().includes(oq))),
